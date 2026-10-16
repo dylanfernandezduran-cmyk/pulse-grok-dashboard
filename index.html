@@ -196,7 +196,7 @@ footer b{color:var(--amber)}
       <div class="radar"></div>
       <div>
         <div class="logo">PULSE GROK</div>
-        <div class="sub">TERMINAL DE PAPER TRADING · SOLANA</div>
+        <div class="sub">TERMINAL DE PAPER TRADING · BTC + SOLANA</div>
       </div>
     </div>
     <div class="badges">
@@ -208,71 +208,39 @@ footer b{color:var(--amber)}
     </div>
   </header>
 
-
+  <!-- PULSE_V9_MAIN_20261015 · BTC forward (PAPER) principal; V7/V8 apagados -->
   <div class="kpis">
-    <div class="card kpi"><div class="l">CAPITAL PAPER · V8</div><div class="v" id="k_bal">$0.00</div><div class="h" id="k_bal_h">3 carteras × $100</div></div>
-    <div class="card kpi"><div class="l">P&amp;L PAPER · V8</div><div class="v" id="k_pnl">$0.00</div><div class="h" id="k_pnl_h">—</div></div>
-    <div class="card kpi"><div class="l">GANADAS / PERDIDAS</div><div class="v" id="k_wl">0 / 0</div><div class="h" id="k_wl_h">—</div></div>
-    <div class="card kpi"><div class="l">POSICIONES ABIERTAS</div><div class="v" id="k_open">0</div><div class="h" id="k_open_h">—</div></div>
+    <div class="card kpi"><div class="l">CAPITAL PAPER · BTC FWD</div><div class="v" id="k_bal">$0.00</div><div class="h" id="k_bal_h">2 estrategias × $100</div></div>
+    <div class="card kpi"><div class="l">P&amp;L PAPER · BTC FWD</div><div class="v" id="k_pnl">$0.00</div><div class="h" id="k_pnl_h">—</div></div>
+    <div class="card kpi"><div class="l">BTC BUY &amp; HOLD (BENCHMARK)</div><div class="v" id="k_bh">$0.00</div><div class="h" id="k_bh_h">—</div></div>
+    <div class="card kpi"><div class="l">PRECIO BTC</div><div class="v" id="k_px">—</div><div class="h" id="k_px_h">—</div></div>
   </div>
 
-
-
-  <!-- PULSE_V9_BTC_FWD_20261015 · BTC forward test (PAPER) -->
-  <section id="s_btcfwd">
+  <section id="s_btc">
     <div class="sh"><h2><span class="ic">₿</span><span>PULSE V9 · BTC FORWARD TEST</span> <span class="tag on" style="margin-left:6px">PAPER</span></h2>
-      <div class="badges"><span class="tag real">PAPER · NO ES DINERO REAL</span><span class="tag" id="btclive">—</span></div></div>
-    <div class="mut" id="btcsub" style="font:600 11.5px var(--mono);margin:0 0 8px">esperando datos del box (gist)…</div>
+      <div class="badges"><span class="tag real">PAPER · NO ES DINERO REAL</span><span class="tag sample">HIPÓTESIS EN PRUEBA</span><span class="tag" id="btclive">—</span></div></div>
+    <div class="mut" id="btcsub" style="font:600 11.5px var(--mono);margin:0 0 10px">esperando datos del box (gist)…</div>
     <div class="g3" id="btccards"></div>
-    <div class="card panel" style="margin-top:14px"><h3><span>TRADES RECIENTES · BTC FWD</span></h3><div class="rows" id="btctrades"></div></div>
-  </section>
-
-  <!-- PULSE_UI2_K_V8_20261013 · DESK V8 (principal, el más nuevo) arriba; V7 sigue debajo -->
-  <section id="s_v8">
-    <div class="sh"><h2><span class="ic">🚀</span><span id="v8title">PULSE DESK V8</span> <span class="tag on" style="margin-left:6px">NUEVO</span></h2>
-      <div class="badges"><span class="tag">BOX</span><span class="tag real">DATOS REALES (PAPER)</span><span class="tag sample">HIPÓTESIS EN PRUEBA</span><span class="tag" id="v8live">—</span></div></div>
-    <div class="banner" id="v8banner"></div>
-    <div class="mut" id="v8sub" style="font:600 11.5px var(--mono);margin:0 0 4px"></div>
-    <div class="mut" id="v8tot" style="font:700 12.5px var(--mono);margin:0 0 4px"></div>
-    <div class="mut" id="v8crit" style="font:600 11.5px var(--mono);margin:0 0 10px"></div>
-    <div class="g3" id="v8scouts"></div>
+    <div class="card panel" style="margin-top:14px"><h3><span>EQUITY · S1 TREND vs S3 BREAKOUT vs BUY &amp; HOLD (PAPER)</span><span class="mut" id="btcleg"></span></h3><div id="btcchart" style="height:230px"></div></div>
     <div class="g2" style="margin-top:14px">
-      <div class="card panel"><h3><span>ABIERTAS · V8</span><span class="mut" id="v8oc"></span></h3><div class="rows" id="v8open"></div></div>
-      <div class="card panel"><h3><span>CIERRES RECIENTES · V8</span><span class="mut" id="v8cc"></span></h3><div class="rows" id="v8close"></div></div>
-    </div>
-    <div class="card panel" style="margin-top:14px">
-      <h3><span>🩸 ¿QUÉ TIPO DE COMPRA PIERDE? · V8</span>
-        <div class="tabs" id="v8tabs"></div></h3>
-      <div class="worst" id="v8worst"></div>
-      <div class="dims" id="v8dims"></div>
+      <div class="card panel"><h3><span>POSICIONES ABIERTAS · BTC</span><span class="mut" id="btcoc"></span></h3><div class="rows" id="btcopen"></div></div>
+      <div class="card panel"><h3><span>CIERRES RECIENTES · BTC</span><span class="mut" id="btccc"></span></h3><div class="rows" id="btcclose"></div></div>
     </div>
   </section>
 
-  <!-- SOLO V7 (PULSE_UI2_H_20261010) · slot v6 = desk en vivo · PULSE_UI2_V7_20261010 -->
-  <section id="s_v6" style="margin-top:28px">
-    <div class="sh"><h2><span class="ic">🧪</span><span id="v6title">PULSE DESK V7</span></h2>
-      <div class="badges"><span class="tag">BOX</span><span class="tag real">DATOS REALES (PAPER)</span><span class="tag sample">HIPÓTESIS EN PRUEBA</span><span class="tag" id="v6live">—</span></div></div>
-    <div class="banner" id="v6banner"></div>
-    <div class="mut" id="v6crit" style="font:600 11.5px var(--mono);margin:0 0 10px"></div>
-    <div class="g3" id="v6scouts"></div>
-    <div class="g2" style="margin-top:14px">
-      <div class="card panel"><h3><span>ABIERTAS · <span class="v6n">V7</span></span><span class="mut" id="v6oc"></span></h3><div class="rows" id="v6open"></div></div>
-      <div class="card panel"><h3><span>CIERRES RECIENTES · <span class="v6n">V7</span></span><span class="mut" id="v6cc"></span></h3><div class="rows" id="v6close"></div></div>
-    </div>
-    <div class="card panel" style="margin-top:14px">
-      <h3><span>🩸 ¿QUÉ TIPO DE COMPRA PIERDE? · <span class="v6n">V7</span></span>
-        <div class="tabs" id="v6tabs"></div></h3>
-      <div class="worst" id="v6worst"></div>
-      <div class="dims" id="v6dims"></div>
-    </div>
+  <section id="s_coinc" style="margin-top:28px">
+    <div class="sh"><h2><span class="ic">🎯</span><span>PULSE COINCIDENCIAS</span></h2>
+      <div class="badges"><span class="tag real">DATOS REALES (PAPER)</span><span class="tag" id="coinclive">—</span></div></div>
+    <div class="mut" id="coincsub" style="font:600 11.5px var(--mono);margin:0 0 10px"></div>
+    <div class="g3" id="coinccards"></div>
   </section>
 
-
+  <details style="margin-top:18px;opacity:.6"><summary class="mut" style="cursor:pointer;font:600 10.5px var(--mono)">Historial apagado</summary><div id="hist" class="mut" style="font:600 10.5px var(--mono);margin-top:4px"></div></details>
 
   <footer>
     <b>SOLO PAPER TRADING</b> — todas las cifras son simuladas; ningún dinero real está en juego.<br>
-    <span id="foot">PULSE DESK V8 (principal) y V7 = datos reales (paper) leídos en solo-lectura desde el box · actualiza cada 5 s<br>
-    Sistemas viejos (V3–V6) archivados · horas en hora del centro (CT)</span>
+    <span id="foot">PULSE V9: BTC forward test (paper, Binance público) + COINCIDENCIAS · snapshot del box vía gist<br>
+    DESK V3–V8 apagados/archivados · horas en hora del centro (CT)</span>
   </footer>
 </div>
 
@@ -433,29 +401,60 @@ function render(d){
   renderDesk('v6',v6,'DESK '+v6n,now);
 }
 
-function renderBtc(b,age){const el=$('btccards');if(!el)return;
-  if(!b||typeof b!=='object'||b.error){$('btcsub').textContent=b&&b.error?('error: '+b.error):'esperando datos del box (gist)';return}
-  const f=(x,d=2)=>x==null?'—':Number(x).toFixed(d),bh=b.benchmark||{},stale=age>240;
-  $('btclive').textContent=stale?'DESACTUALIZADO':(b.data_ok?'EN VIVO':'DATOS: '+(b.data_note||'?'));
-  $('btcsub').textContent=`PAPER · BTC $${f(b.price,0)} · B&H desde launch ${new Date(bh.start_ms).toLocaleString('es-MX',{timeZone:'America/Mexico_City',hour12:false})} CT a $${f(bh.start_price,0)} → $${f(bh.equity)} (inicio $100)`;
-  el.innerHTML=Object.entries(b.strategies||{}).map(([k,v])=>{const d=v.equity-(bh.equity||100);return `<div class="card kpi"><div class="l">${k.replace('_',' ')} · ${Object.entries(v.params||{}).map(([a,c])=>a+'='+c).join(' ')}</div>
-   <div class="v">$${f(v.equity)}</div><div class="h">PAPER · ${v.in_position?'LARGO desde $'+f(v.entry_px,0)+(v.stop?' · stop $'+f(v.stop,0):''):'FLAT'} · ${v.trades} trades · PF ${v.pf==null?'—':f(v.pf)} · vs B&amp;H <span class="${cls(d)}">${d>=0?'+':''}${f(d)}</span>${v.paused?' · PAUSADO: '+(v.pause_reason||''):''}</div></div>`}).join('')
-   +`<div class="card kpi"><div class="l">BENCHMARK · BTC BUY &amp; HOLD</div><div class="v">$${f(bh.equity)}</div><div class="h">PAPER · desde launch · mismo costo 0.15%/lado</div></div>`;
-  const t=b.recent_trades||[];$('btctrades').innerHTML=t.length?t.map(x=>`<div class="mut" style="font:600 11.5px var(--mono)">${x.strategy} · $${f(x.entry_px,0)} → $${f(x.exit_px,0)} · ${x.why} · <span class="${cls(x.pnl_usd)}">${x.pnl_usd>=0?'+':''}${f(x.pnl_usd)}</span></div>`).join(''):'<div class="mut">sin trades cerrados aún</div>'}
+function lineChart(el,S,keys,cols,names){
+  const t=S.t||[];if(t.length<2){el.innerHTML='<div class="emptyrow">juntando datos… (1 punto por minuto)</div>';return}
+  const W=900,H=230,pl=44,pr=10,pt=10,pb=22,all=[];keys.forEach(k=>(S[k]||[]).forEach(v=>v!=null&&all.push(v)));all.push(100);
+  let mn=Math.min(...all),mx=Math.max(...all);const pad=(mx-mn)*.08||0.5;mn-=pad;mx+=pad;
+  const X=i=>pl+(W-pl-pr)*i/(t.length-1),Y=v=>pt+(H-pt-pb)*(1-(v-mn)/(mx-mn));
+  let g='';for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.07)"/><text x="${pl-6}" y="${Y(v)+4}" fill="#8aa" font-size="10" text-anchor="end">$${v.toFixed(2)}</text>`}
+  const tl=i=>new Date(t[i]).toLocaleString('es-MX',{timeZone:'America/Mexico_City',hour12:false,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  g+=`<text x="${pl}" y="${H-6}" fill="#8aa" font-size="10">${tl(0)} CT</text><text x="${W-pr}" y="${H-6}" fill="#8aa" font-size="10" text-anchor="end">${tl(t.length-1)} CT</text>`;
+  g+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(100)}" y2="${Y(100)}" stroke="rgba(255,255,255,.25)" stroke-dasharray="4 4"/>`;
+  keys.forEach((k,j)=>{const a=S[k]||[];let d='';a.forEach((v,i)=>{if(v==null)return;d+=(d?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)});
+    g+=`<path d="${d}" fill="none" stroke="${cols[j]}" stroke-width="${k==='bh'?1.6:2.2}" ${k==='bh'?'stroke-dasharray="5 4"':''}/>`});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">${g}</svg>`;
+  $('btcleg').innerHTML=keys.map((k,j)=>`<span style="color:${cols[j]}">● ${names[j]} $${Number((S[k]||[]).slice(-1)[0]||0).toFixed(2)}</span>`).join(' &nbsp; ');
+}
+function renderV9(s,age,now){
+  const b=s.btc_fwd,stale=age>240,f=(x,d=2)=>x==null?'—':Number(x).toFixed(d);
+  const tg=ok=>stale?`<span class="tag off">⚠ DESACTUALIZADO · hace ${Math.round(age/60)} min</span>`:(ok?'<span class="tag on">● EN VIVO</span>':'<span class="tag off">DATOS NO OK</span>');
+  if(b&&!b.error){
+    const bh=b.benchmark||{},T=b.totals||{};
+    $('btclive').outerHTML=`<span id="btclive">${tg(b.data_ok)}</span>`;
+    countTo($('k_bal'),T.balance,v=>'$'+v.toFixed(2));$('k_bal_h').textContent=`PAPER · inicio $${f(T.start,0)} · 2 estrategias`;
+    countTo($('k_pnl'),T.pnl,v=>fmtUsd(v,true),{colorize:true});$('k_pnl_h').textContent=`${fmtPct(T.pnl/(T.start||200)*100)} · vs B&H ${fmtUsd(T.balance/2-bh.equity,true)} por estrategia`;
+    countTo($('k_bh'),bh.equity,v=>'$'+v.toFixed(2));$('k_bh_h').textContent=`PAPER · ${fmtPct(bh.roi)} desde launch a $${f(bh.start_price,0)}`;
+    $('k_px').textContent='$'+f(b.price,0);$('k_px_h').textContent=`BTCUSDT · Binance público · ${b.data_ok?'datos OK':esc(b.data_note)}`;
+    $('btcsub').textContent=`PAPER · spot long-only, sin apalancamiento · costos 0.10% + 0.05% slippage por lado · kill switch −20% DD · launch ${new Date(bh.start_ms).toLocaleString('es-MX',{timeZone:'America/Mexico_City',hour12:false})} CT`;
+    const box=$('btccards'),st=b.strategies||[];
+    if(!box._init){box._init=1;box.innerHTML=st.map(x=>`<div class="card wallet" id="w_btc_${x.id}"></div>`).join('')+`<div class="card wallet" id="w_btc_bh"></div>`}
+    st.forEach((x,i)=>{const S=b.series||{};walletCard($('w_btc_'+x.id),Object.assign({},x,{equity:(S[x.id]||[]).filter(v=>v!=null).map(v=>({b:v}))}),{openLbl:'POSICIÓN',openCount:x.position?'LARGO':'FLAT',
+      extra:`<div class="ws" style="margin-top:8px">${x.trades} trades · win rate ${x.winrate==null?'—':x.winrate+'%'} · vs B&amp;H <span class="${cls(x.vs_bh)}">${fmtUsd(x.vs_bh,true)}</span>${x.paused?' · <b class="dn">PAUSADO: '+esc(x.pause_reason)+'</b>':''}</div>`})});
+    walletCard($('w_btc_bh'),{name:'BTC BUY & HOLD',subtitle:'benchmark desde launch · mismo costo',balance:bh.equity,start:100,roi:bh.roi,pnl:bh.pnl,wins:0,losses:0,pf:null,equity:((b.series||{}).bh||[]).map(v=>({b:v}))},{openLbl:'POSICIÓN',openCount:'LARGO'});
+    lineChart($('btcchart'),b.series||{},['S1_trend','S3_breakout','bh'],['#00e5ff','#ffb020','#9aa4b2'],['S1 trend','S3 breakout','Buy & hold']);
+    const op=st.filter(x=>x.position);$('btcoc').textContent=op.length+' abiertas';
+    $('btcopen').innerHTML=op.length?op.map(x=>{const p=x.position;return `<div class="row"><span><b>${esc(x.name)}</b> · LARGO</span><span>entrada $${f(p.entry_px,0)} → $${f(p.cur_px,0)}${p.stop?' · stop $'+f(p.stop,0):''}</span><span class="${cls(p.upnl_usd)}">${fmtUsd(p.upnl_usd,true)} (${fmtPct(p.upnl_pct)})</span></div>`}).join(''):'<div class="emptyrow">Sin posiciones abiertas</div>';
+    const rt=b.recent_trades||[];$('btccc').textContent=`${st.reduce((a,x)=>a+x.trades,0)} cerrados`;
+    $('btcclose').innerHTML=rt.length?rt.map(x=>`<div class="row"><span><b>${esc(x.strategy.replace('_',' '))}</b> · ${esc(x.why)}</span><span>$${f(x.entry_px,0)} → $${f(x.exit_px,0)}</span><span class="${cls(x.pnl_usd)}">${fmtUsd(x.pnl_usd,true)} (${fmtPct(x.ret*100)})</span></div>`).join(''):'<div class="emptyrow">Sin cierres todavía</div>';
+  }else{$('btcsub').textContent=b&&b.error?'error: '+b.error:'esperando datos del box (gist)'}
+  const c=s.coinc;
+  if(c&&!c.error){$('coinclive').outerHTML=`<span id="coinclive">${tg(true)}</span>`;$('coincsub').textContent='PAPER · '+(c.note||'');
+    const box=$('coinccards');if(!box._init){box._init=1;box.innerHTML=(c.arms||[]).map(x=>`<div class="card wallet" id="w_coinc_${x.id}"></div>`).join('')}
+    (c.arms||[]).forEach(x=>walletCard($('w_coinc_'+x.id),x,{openCount:x.open_count}));}
+  const h=(s.historial||[]).filter(x=>x.n!=null);$('hist').innerHTML=h.map(x=>`${esc(x.name)} ${x.n}t <span class="${cls(x.pnl)}">${fmtUsd(x.pnl,true)}</span> PF ${x.pf}`).join(' · ')+' · apagados 15/10 (sin edge realista)';
+}
 async function tick(){
   try{const G='a2aef1f302ecb2680905497477cd051e',O='dylanfernandezduran-cmyk';let s;
     try{const r=await fetch(`https://gist.githubusercontent.com/${O}/${G}/raw/pulse_state.json?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('raw HTTP '+r.status);s=await r.json()}
     catch(e1){const r=await fetch('https://api.github.com/gists/'+G,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const g=await r.json();s=JSON.parse(g.files['pulse_state.json'].content)}
     const nowMs=Date.now(),gen=(s.generated_at||((s.box_ms||0)/1000))*1000,age=Math.max(0,(nowMs-gen)/1000);
-    const at=x=>x<60?Math.round(x)+' s':x<3600?Math.round(x/60)+' min':(x/3600).toFixed(1)+' h';
-    const d={server_ms:nowMs,server_txt:new Date().toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false}),tz:'CT',paper_only:true,preview:false,
-      footer:'PULSE DESK V8 + V7 = snapshot del box vía gist (~cada 45-90 s; desactualizado si &gt;4 min) · GitHub Pages, consulta cada 60 s<br>Horas en hora del centro (CT)',v3:{radar:[]}};
-    for(const k of ['v6','v8']){const v=s[k];if(!v||typeof v!=='object'){d[k]={nodata:true,live:false,error:'esperando datos del box (gist)'};continue}
-      const w=Object.assign({},v,{pushed_age_s:Math.round(age),feed_src:'gist'});if(age>240)Object.assign(w,{stale:true,live:false,stale_txt:at(age)});d[k]=w}
-    render(d);try{renderBtc(s.btc_fwd,age)}catch(e){console.error('btc',e)}}
+    renderV9(s,age,nowMs);
+    const live=age<=240;$('livedot').className='dot'+(live?'':' off');$('livetxt').textContent=live?'SISTEMA EN LÍNEA':'DESACTUALIZADO';$('livebadge').style.color=live?'':'var(--red)';
+    $('upd').textContent='⟳ '+new Date(gen).toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})+' CT';
+    const pb=$('prevbadge');if(pb)pb.style.display='none'}
   catch(e){$('livedot').className='dot off';$('livetxt').textContent='SIN CONEXIÓN';$('livebadge').style.color='var(--red)';console.error(e)}
 }
-setTabs();tick();setInterval(tick,60000);
+tick();setInterval(tick,60000);
 </script>
 </body>
 </html>
