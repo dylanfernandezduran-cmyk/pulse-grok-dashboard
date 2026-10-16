@@ -218,6 +218,15 @@ footer b{color:var(--amber)}
 
 
 
+  <!-- PULSE_V9_BTC_FWD_20261015 · BTC forward test (PAPER) -->
+  <section id="s_btcfwd">
+    <div class="sh"><h2><span class="ic">₿</span><span>PULSE V9 · BTC FORWARD TEST</span> <span class="tag on" style="margin-left:6px">PAPER</span></h2>
+      <div class="badges"><span class="tag real">PAPER · NO ES DINERO REAL</span><span class="tag" id="btclive">—</span></div></div>
+    <div class="mut" id="btcsub" style="font:600 11.5px var(--mono);margin:0 0 8px">esperando datos del box (gist)…</div>
+    <div class="g3" id="btccards"></div>
+    <div class="card panel" style="margin-top:14px"><h3><span>TRADES RECIENTES · BTC FWD</span></h3><div class="rows" id="btctrades"></div></div>
+  </section>
+
   <!-- PULSE_UI2_K_V8_20261013 · DESK V8 (principal, el más nuevo) arriba; V7 sigue debajo -->
   <section id="s_v8">
     <div class="sh"><h2><span class="ic">🚀</span><span id="v8title">PULSE DESK V8</span> <span class="tag on" style="margin-left:6px">NUEVO</span></h2>
@@ -424,6 +433,15 @@ function render(d){
   renderDesk('v6',v6,'DESK '+v6n,now);
 }
 
+function renderBtc(b,age){const el=$('btccards');if(!el)return;
+  if(!b||typeof b!=='object'||b.error){$('btcsub').textContent=b&&b.error?('error: '+b.error):'esperando datos del box (gist)';return}
+  const f=(x,d=2)=>x==null?'—':Number(x).toFixed(d),bh=b.benchmark||{},stale=age>240;
+  $('btclive').textContent=stale?'DESACTUALIZADO':(b.data_ok?'EN VIVO':'DATOS: '+(b.data_note||'?'));
+  $('btcsub').textContent=`PAPER · BTC $${f(b.price,0)} · B&H desde launch ${new Date(bh.start_ms).toLocaleString('es-MX',{timeZone:'America/Mexico_City',hour12:false})} CT a $${f(bh.start_price,0)} → $${f(bh.equity)} (inicio $100)`;
+  el.innerHTML=Object.entries(b.strategies||{}).map(([k,v])=>{const d=v.equity-(bh.equity||100);return `<div class="card kpi"><div class="l">${k.replace('_',' ')} · ${Object.entries(v.params||{}).map(([a,c])=>a+'='+c).join(' ')}</div>
+   <div class="v">$${f(v.equity)}</div><div class="h">PAPER · ${v.in_position?'LARGO desde $'+f(v.entry_px,0)+(v.stop?' · stop $'+f(v.stop,0):''):'FLAT'} · ${v.trades} trades · PF ${v.pf==null?'—':f(v.pf)} · vs B&amp;H <span class="${cls(d)}">${d>=0?'+':''}${f(d)}</span>${v.paused?' · PAUSADO: '+(v.pause_reason||''):''}</div></div>`}).join('')
+   +`<div class="card kpi"><div class="l">BENCHMARK · BTC BUY &amp; HOLD</div><div class="v">$${f(bh.equity)}</div><div class="h">PAPER · desde launch · mismo costo 0.15%/lado</div></div>`;
+  const t=b.recent_trades||[];$('btctrades').innerHTML=t.length?t.map(x=>`<div class="mut" style="font:600 11.5px var(--mono)">${x.strategy} · $${f(x.entry_px,0)} → $${f(x.exit_px,0)} · ${x.why} · <span class="${cls(x.pnl_usd)}">${x.pnl_usd>=0?'+':''}${f(x.pnl_usd)}</span></div>`).join(''):'<div class="mut">sin trades cerrados aún</div>'}
 async function tick(){
   try{const G='a2aef1f302ecb2680905497477cd051e',O='dylanfernandezduran-cmyk';let s;
     try{const r=await fetch(`https://gist.githubusercontent.com/${O}/${G}/raw/pulse_state.json?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('raw HTTP '+r.status);s=await r.json()}
@@ -434,7 +452,7 @@ async function tick(){
       footer:'PULSE DESK V8 + V7 = snapshot del box vía gist (~cada 45-90 s; desactualizado si &gt;4 min) · GitHub Pages, consulta cada 60 s<br>Horas en hora del centro (CT)',v3:{radar:[]}};
     for(const k of ['v6','v8']){const v=s[k];if(!v||typeof v!=='object'){d[k]={nodata:true,live:false,error:'esperando datos del box (gist)'};continue}
       const w=Object.assign({},v,{pushed_age_s:Math.round(age),feed_src:'gist'});if(age>240)Object.assign(w,{stale:true,live:false,stale_txt:at(age)});d[k]=w}
-    render(d)}
+    render(d);try{renderBtc(s.btc_fwd,age)}catch(e){console.error('btc',e)}}
   catch(e){$('livedot').className='dot off';$('livetxt').textContent='SIN CONEXIÓN';$('livebadge').style.color='var(--red)';console.error(e)}
 }
 setTabs();tick();setInterval(tick,60000);
