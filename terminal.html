@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PULSE · Terminal BTC (PAPER)</title><link rel="stylesheet" href="terminal.css"></head><body>
+<header><div class="logo">P</div><b>PULSE Terminal · BTC</b>
+<nav><a href="./index.html">Dashboard</a><a href="./terminal.html" class="on">Terminal</a></nav><div class="sp"></div>
+<span class="mut" id="upd">—</span></header>
+<div class="banner">⚠ Indicadores informativos. No es señal de trading. Scalping de 1-15 min no tiene ventaja comprobada. Solo paper.</div>
+<div class="grid">
+ <div class="col">
+  <div class="panel" id="tv"><div class="tradingview-widget-container" style="height:100%"><div id="tvw" style="height:100%"></div></div></div>
+  <div class="panel"><h3>Tendencia multi-temporalidad (EMA20 vs EMA50 · RSI14)</h3><div class="align" id="align">—</div>
+   <table><thead><tr><th>TF</th><th>Tendencia</th><th>RSI14</th><th>Cierre</th><th>Últimas 50 velas</th></tr></thead><tbody id="mtf"></tbody></table></div>
+ </div>
+ <div class="col">
+  <div class="panel"><h3>Precio BTC/USDT</h3><div class="price" id="px">—</div><div class="chg" id="chg">—</div><div class="mut" id="src" style="font-size:12px;margin-top:4px">—</div></div>
+  <div class="panel"><h3>Presión de mercado (taker 1m · últimas <span id="pn">60</span> velas)</h3>
+   <div class="gauge"><div id="gbar" style="width:50%"></div></div>
+   <div class="kv"><span class="up">Compra</span><span id="buy">—</span></div><div class="kv"><span class="dn">Venta</span><span id="sell">—</span></div></div>
+  <div class="panel"><h3>Niveles clave</h3>
+   <div class="kv"><span>Máx 24h</span><span id="h24">—</span></div><div class="kv"><span>Mín 24h</span><span id="l24">—</span></div>
+   <div class="kv"><span>Swing high (1h)</span><span id="sh">—</span></div><div class="kv"><span>Swing low (1h)</span><span id="sl">—</span></div></div>
+  <div class="panel"><h3>PULSE forward test (PAPER)</h3><div id="pulse" class="mut">Cargando…</div><div class="mut" id="pfresh" style="font-size:12px;margin-top:6px"></div></div>
+ </div>
+</div>
+<footer>Datos: Binance (data-api.binance.vision) · respaldo Coinbase Exchange · gráfico TradingView · estado PULSE desde gist. Refresco cada 45 s. Sin apuestas Up/Down, sin dinero real.</footer>
+<script src="indicators.js"></script><script src="terminal.js"></script>
+</body></html>

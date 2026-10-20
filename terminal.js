@@ -1,0 +1,45 @@
+(function(){
+const B='https://data-api.binance.vision/api/v3',O='dylanfernandezduran-cmyk',G='a2aef1f302ecb2680905497477cd051e';
+const TFS=['1m','5m','15m','1h','4h','1d'],$=id=>document.getElementById(id);
+const f=(x,d=2)=>x==null||isNaN(x)?'—':Number(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=x=>x==null||isNaN(x)?'—':(x>0?'+':'')+f(x)+'%';const cls=x=>x>0?'up':x<0?'dn':'mut';
+const NA='<span class="mut">no disponible</span>';
+async function J(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error(u+' '+r.status);return r.json()}
+function tv(){const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';s.async=true;
+ s.text=JSON.stringify({autosize:true,symbol:'BINANCE:BTCUSDT',interval:'15',timezone:'America/Mexico_City',theme:'dark',style:'1',locale:'es',allow_symbol_change:true,backgroundColor:'#14171c',support_host:'https://www.tradingview.com'});
+ document.querySelector('.tradingview-widget-container').appendChild(s)}
+function spark(v){if(!v.length)return '';const mn=Math.min(...v),mx=Math.max(...v),w=120,h=26,r=mx-mn||1;
+ const p=v.map((x,i)=>`${(i/(v.length-1)*w).toFixed(1)},${(h-(x-mn)/r*h).toFixed(1)}`).join(' ');const c=v.at(-1)>=v[0]?'#1fd17a':'#f0475c';
+ return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${c}" stroke-width="1.5" points="${p}"/></svg>`}
+async function ticker(){
+ try{const t=await J(`${B}/ticker/24hr?symbol=BTCUSDT`);$('px').textContent='$'+f(+t.lastPrice);
+  $('chg').innerHTML=`<span class="${cls(+t.priceChangePercent)}">${pct(+t.priceChangePercent)} (${f(+t.priceChange)}) 24h</span>`;
+  $('h24').textContent='$'+f(+t.highPrice);$('l24').textContent='$'+f(+t.lowPrice);$('src').textContent='Fuente: Binance BTCUSDT';return}
+ catch(e){console.warn('binance ticker',e)}
+ try{const [t,s]=await Promise.all([J('https://api.exchange.coinbase.com/products/BTC-USD/ticker'),J('https://api.exchange.coinbase.com/products/BTC-USD/stats')]);
+  const ch=(+t.price-+s.open)/+s.open*100;$('px').textContent='$'+f(+t.price);$('chg').innerHTML=`<span class="${cls(ch)}">${pct(ch)} 24h</span>`;
+  $('h24').textContent='$'+f(+s.high);$('l24').textContent='$'+f(+s.low);$('src').textContent='Fuente: Coinbase BTC-USD (respaldo)'}
+ catch(e){$('px').innerHTML=NA;$('chg').textContent='';$('h24').innerHTML=NA;$('l24').innerHTML=NA;$('src').textContent='Sin fuente de precio'}}
+async function mtf(){const res=await Promise.all(TFS.map(tf=>J(`${B}/klines?symbol=BTCUSDT&interval=${tf}&limit=200`).catch(()=>null)));
+ const tr=[];$('mtf').innerHTML=res.map((k,i)=>{if(!k)return `<tr><td>${TFS[i]}</td><td colspan="4">${NA}</td></tr>`;
+  const c=k.map(x=>+x[4]),t=PI.trend(c),r=PI.rsi(c);tr.push(t);
+  return `<tr><td>${TFS[i]}</td><td><span class="tag ${t}">${{BULLISH:'ALCISTA',BEARISH:'BAJISTA',NEUTRAL:'NEUTRAL'}[t]}</span></td><td class="${r>70?'dn':r<30?'up':''}">${f(r,1)}</td><td>$${f(c.at(-1))}</td><td>${spark(c.slice(-50))}</td></tr>`}).join('');
+ const a=PI.alignment(tr);$('align').innerHTML=tr.length?`<span class="up">${a.bull}/${a.total} alcistas</span> · <span class="dn">${a.bear} bajistas</span> · <span class="mut">${a.neutral} neutrales</span>`:NA;
+ const m=res[0];if(m){const p=PI.pressure(m.slice(-60));if(p){$('gbar').style.width=p.buyPct.toFixed(1)+'%';$('buy').textContent=f(p.buyPct,1)+'%';$('sell').textContent=f(p.sellPct,1)+'%'}}
+ else{$('buy').innerHTML=NA;$('sell').innerHTML=NA}
+ const h=res[3];if(h){const s=PI.swings(h.map(x=>+x[2]),h.map(x=>+x[3]),3);$('sh').textContent=s.swingHigh==null?'—':'$'+f(s.swingHigh);$('sl').textContent=s.swingLow==null?'—':'$'+f(s.swingLow)}
+ else{$('sh').innerHTML=NA;$('sl').innerHTML=NA}}
+async function pulse(){try{let s;try{s=await J(`https://gist.githubusercontent.com/${O}/${G}/raw/pulse_state.json?t=${Date.now()}`)}
+  catch(e){const g=await J('https://api.github.com/gists/'+G);s=JSON.parse(g.files['pulse_state.json'].content)}
+  const b=s.btc_fwd;if(!b||b.error)throw new Error('sin btc_fwd');const bh=b.benchmark||{};
+  const rows=['S1_trend','S3_breakout'].map(id=>{const st=(b.strategies||[]).find(x=>x.id===id);if(!st)return `<div class="kv"><span>${id}</span>${NA}</div>`;const p=st.position;
+   return `<div class="kv"><span><b>${id==='S1_trend'?'S1 Tendencia':'S3 Ruptura'}</b></span><span>$${f(st.balance)} <span class="${cls(st.roi)}">${pct(st.roi)}</span></span></div>
+   <div class="kv"><span class="mut">Posición</span><span>${p?'LONG @ $'+f(p.entry_px):'FLAT'}</span></div>
+   <div class="kv"><span class="mut">vs Buy&amp;Hold</span><span class="${cls(st.vs_bh)}">${st.vs_bh>0?"+":st.vs_bh<0?"−":""}$${f(Math.abs(st.vs_bh))}</span></div>`}).join('');
+  $('pulse').innerHTML=rows+`<div class="kv"><span>Buy &amp; Hold</span><span>$${f(bh.equity)} <span class="${cls(bh.roi)}">${pct(bh.roi)}</span></span></div>`;
+  const gen=(s.generated_at||(s.box_ms||0)/1000)*1000,age=(Date.now()-gen)/1000;
+  $('pfresh').innerHTML=`${age<=240?'<span class="up">● en vivo</span>':'<span class="dn">● desactualizado</span>'} · ${new Date(gen).toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})} CT · PAPER`}
+ catch(e){$('pulse').innerHTML='Estado PULSE '+NA;console.warn(e)}}
+async function cycle(){await Promise.all([ticker(),mtf(),pulse()]);$('upd').textContent='Actualizado '+new Date().toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})+' CT'}
+tv();cycle();setInterval(cycle,45000);
+})();
