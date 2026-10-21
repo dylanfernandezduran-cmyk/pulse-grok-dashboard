@@ -11,3 +11,5 @@ Página móvil (instalable con "Añadir a pantalla de inicio": `manifest.json`, 
 **Regla** (`senales_rule.js`, con velas cerradas): votos EMA9 vs EMA21 (±1), RSI14 >55 / <45 (±1, si no 0), ratio taker-buy de la última vela >0.52 / <0.48 (±1, si no 0). Suma >0 → SUBE, <0 → BAJA, empate → dirección de la última vela. Cada predicción se califica sola al cerrar la vela (acierto si cierre vs apertura coincide; cierre = apertura no cuenta) y se guarda en localStorage. La página muestra además un backtest de la misma regla sobre las últimas 1000 velas. ~50% = moneda al aire; con comisiones hace falta >~53-55%. Avisos del navegador + sonido opcionales. No es consejo financiero, sin dinero real.
 
 Tests: `node tests/senales.test.js`.
+
+Señales v2: caja SUBE/BAJA arriba del todo en móvil, mensaje "Cargando…"/error visible, fuentes en cascada con timeout (Binance → Coinbase → Kraken → Bybit), recursos con `?v=2` y `sw.js` sin caché (solo red, borra cachés viejas).

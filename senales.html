@@ -2,21 +2,22 @@
 <title>PULSE · Señales BTC (PAPER)</title><meta name="theme-color" content="#0b0d10">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Señales">
-<link rel="stylesheet" href="terminal.css"><link rel="stylesheet" href="senales.css"></head><body>
-<header><div class="logo">P</div><b>PULSE Señales · BTC</b>
+<link rel="stylesheet" href="terminal.css?v=2"><link rel="stylesheet" href="senales.css?v=2"></head><body>
+<header class="hs"><div class="logo">P</div><b>PULSE Señales · BTC</b>
 <nav><a href="./index.html">Dashboard</a><a href="./terminal.html">Terminal</a><a href="./senales.html" class="on">Señales</a></nav><div class="sp"></div>
 <span class="mut" id="upd">—</span></header>
-<div class="banner">⚠ Solo PAPER / educativo. No es consejo financiero. Sin dinero real. Predecir la siguiente vela de 5-15 min es prácticamente una moneda al aire; mira el backtest antes de creer nada.</div>
 <main class="sw">
- <div class="ivsel" role="group" aria-label="Intervalo"><button data-iv="5m">5m</button><button data-iv="15m">15m</button></div>
  <section class="panel big" id="big">
   <div class="mut" id="tgt">Predicción para la vela actual</div>
-  <div class="dirw"><span id="dir" class="dir gray">…</span></div>
+  <div class="dirw"><span id="dir" class="dir gray">Cargando…</span></div>
+  <div id="status" class="status" style="display:none"></div>
   <div class="cd"><span class="mut">Cierra en</span> <b id="cd">--:--</b></div>
   <div class="px"><span id="px">—</span> <span class="mut" id="src">—</span></div>
   <div class="votes" id="votes"></div>
   <button id="notif" type="button">🔔 Activar avisos + sonido</button>
  </section>
+ <div class="ivsel" role="group" aria-label="Intervalo"><button data-iv="5m">5m</button><button data-iv="15m">15m</button></div>
+ <div class="banner sm">⚠ Solo PAPER / educativo. No es consejo financiero. Sin dinero real. Predecir la siguiente vela de 5-15 min es prácticamente una moneda al aire; mira el backtest antes de creer nada.</div>
  <section class="panel"><h3>Marcador en vivo (este dispositivo · <span id="ivl">5m</span>)</h3>
   <div class="score"><div><b class="up" id="hits">0</b><span>Aciertos</span></div><div><b class="dn" id="miss">0</b><span>Fallos</span></div><div><b id="acc">—</b><span>% Acierto</span></div></div>
   <div class="hist" id="hist"></div><button id="reset" type="button" class="link">Borrar marcador</button></section>
@@ -31,5 +32,5 @@
   <p class="mut small">Se calcula con velas <i>cerradas</i> al abrir cada vela y predice si esa vela cerrará por encima (SUBE) o por debajo (BAJA) de su apertura. Se califica sola al cerrar. Velas con cierre = apertura no cuentan. Código: <a href="senales_rule.js">senales_rule.js</a>.</p></section>
 </main>
 <footer>Datos: Binance (data-api.binance.vision) · respaldo Coinbase Exchange. Marcador guardado en localStorage de este navegador. Solo paper, sin apuestas, sin dinero real.</footer>
-<script src="senales_rule.js"></script><script src="senales.js"></script>
+<script src="senales_rule.js?v=2"></script><script src="senales.js?v=2"></script>
 </body></html>
