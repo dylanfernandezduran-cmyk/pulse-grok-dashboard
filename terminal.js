@@ -7,7 +7,7 @@ const NA='<span class="mut">no disponible</span>';
 async function J(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error(u+' '+r.status);return r.json()}
 function tv(){const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';s.async=true;
  s.text=JSON.stringify({autosize:true,symbol:'BINANCE:BTCUSDT',interval:'15',timezone:'America/Mexico_City',theme:'dark',style:'1',locale:'es',allow_symbol_change:true,backgroundColor:'#14171c',support_host:'https://www.tradingview.com'});
- document.querySelector('.tradingview-widget-container').appendChild(s)}
+ return}
 function spark(v){if(!v.length)return '';const mn=Math.min(...v),mx=Math.max(...v),w=120,h=26,r=mx-mn||1;
  const p=v.map((x,i)=>`${(i/(v.length-1)*w).toFixed(1)},${(h-(x-mn)/r*h).toFixed(1)}`).join(' ');const c=v.at(-1)>=v[0]?'#1fd17a':'#f0475c';
  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${c}" stroke-width="1.5" points="${p}"/></svg>`}
