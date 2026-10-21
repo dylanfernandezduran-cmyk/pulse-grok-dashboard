@@ -19,3 +19,14 @@ table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px
 .align{font:700 22px var(--mono);margin-bottom:8px}
 footer{padding:10px 16px 24px;color:var(--mut);font-size:12px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}#tv{height:380px}}
+
+.sigwrap{margin:12px 16px;padding:14px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r)}
+.sighead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:18px}.sighead .mut{font-size:12px;flex:1}
+.sighead button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media(max-width:700px){.sigs{grid-template-columns:1fr}}
+.sig{border-radius:12px;padding:14px;border:2px solid;font-size:13px;line-height:1.5}.sig .act{font:800 34px var(--sans);letter-spacing:.04em;display:block}
+.sig.green{border-color:#1fd17a;background:rgba(31,209,122,.12)}.sig.green .act{color:#1fd17a}
+.sig.red{border-color:#f0475c;background:rgba(240,71,92,.12)}.sig.red .act{color:#f0475c}
+.sig.blue{border-color:#3b8bff;background:rgba(59,139,255,.12)}.sig.blue .act{color:#3b8bff}
+.sig.gray{border-color:#5a6270;background:rgba(139,147,161,.08)}.sig.gray .act{color:#aab2bf}
+.signote{margin-top:10px;font-size:12px;color:var(--amber)}

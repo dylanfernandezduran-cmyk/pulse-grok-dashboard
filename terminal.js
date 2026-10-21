@@ -40,6 +40,34 @@ async function pulse(){try{let s;try{s=await J(`https://gist.githubusercontent.c
   const gen=(s.generated_at||(s.box_ms||0)/1000)*1000,age=(Date.now()-gen)/1000;
   $('pfresh').innerHTML=`${age<=240?'<span class="up">● en vivo</span>':'<span class="dn">● desactualizado</span>'} · ${new Date(gen).toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})} CT · PAPER`}
  catch(e){$('pulse').innerHTML='Estado PULSE '+NA;console.warn(e)}}
-async function cycle(){await Promise.all([ticker(),mtf(),pulse()]);$('upd').textContent='Actualizado '+new Date().toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})+' CT'}
+const COL={COMPRAR:'green',VENDER:'red',MANTENER:'blue',ESPERAR:'gray',NA:'gray'};
+const ct=ms=>new Date(ms).toLocaleString('es-MX',{timeZone:'America/Mexico_City',hour12:false,day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' CT';
+let lastAct={};
+async function signal(){let s=null,kl=null;
+ try{s=await J(`https://gist.githubusercontent.com/${O}/${G}/raw/pulse_state.json?t=${Date.now()}`)}catch(e){try{const g=await J('https://api.github.com/gists/'+G);s=JSON.parse(g.files['pulse_state.json'].content)}catch(e2){}}
+ try{kl=PI.closedOnly(await J(`${B}/klines?symbol=BTCUSDT&interval=4h&limit=1000`),Date.now())}catch(e){}
+ const b=s&&s.btc_fwd;if(!b||!b.strategies){$('sigS1').innerHTML=$('sigS3').innerHTML='<span class="act">—</span>Estado PULSE '+NA;return}
+ const now=Date.now(),gen=(s.generated_at||(s.box_ms||0)/1000)*1000,age=(now-gen)/60000;
+ $('sigupd').innerHTML=`última actualización ${ct(gen)} ${age>15?'<span class="dn">· desactualizado</span>':'<span class="up">· al día</span>'}${b.data_ok===false?' <span class="dn">· datos: '+b.data_note+'</span>':''}`;
+ const c=kl&&kl.map(k=>+k[4]),h=kl&&kl.map(k=>+k[2]),l=kl&&kl.map(k=>+k[3]);
+ for(const id of ['S1_trend','S3_breakout']){const st=b.strategies.find(x=>x.id===id),key=id.slice(0,2),el=$('sig'+key);
+  let prev;try{prev=JSON.parse(localStorage.getItem('pulse_pos_'+id))}catch(e){}
+  const a=PI.pulseAction(st,now,prev);if(st)try{localStorage.setItem('pulse_pos_'+id,JSON.stringify(!!st.position))}catch(e){}
+  const p=st&&st.params||{},sig=st&&st.signal||{};let det='';
+  if(id==='S1_trend'){const fa=p.fast||50,sl=p.slow||300,L=c&&PI.s1Levels(c,fa,sl);
+   if(L)det=`SMA${fa} $${f(L.smaFast)} · SMA${sl} $${f(L.smaSlow)} · cierre 4h $${f(L.close)}<br>`+(st.position?`Vende si SMA${fa} cruza abajo de SMA${sl} (faltan ${f((L.smaFast-L.smaSlow)/L.smaSlow*100)}%)`:
+    L.smaFast>L.smaSlow?`Compra si BTC cierra 4h arriba de $${f(L.smaSlow)}`:`Compra si SMA${fa} cruza arriba de SMA${sl} (diferencia ${f((L.smaFast-L.smaSlow)/L.smaSlow*100)}%) y cierre > SMA${sl}`)}
+  else{const n=p.n||100,m=p.m||40,L=c&&PI.s3Levels(h,l,c,n,m);
+   if(L)det=`cierre 4h $${f(L.close)} · máx ${n} velas $${f(L.nextHi)} · mín ${m} velas $${f(L.nextLo)}<br>`+(st.position?`Vende si BTC cierra 4h abajo de $${f(L.nextLo)}${st.position.stop?` · stop $${f(st.position.stop)}`:''}`:
+    `Compra si BTC cierra 4h arriba de $${f(L.nextHi)} (${f((L.nextHi/L.close-1)*100)}% arriba)`)}
+  if(!det)det='Niveles '+NA;
+  const extra=a.action==='COMPRAR'?`Compra ${ct(a.ts)} @ $${f(a.px)}<br>`:a.action==='MANTENER'?`LONG desde @ $${f(a.px)}<br>`:a.action==='VENDER'&&a.px?`Salida activada (entrada @ $${f(a.px)})<br>`:'';
+  el.className='sig '+COL[a.action];
+  el.innerHTML=`<b>${id==='S1_trend'?'S1 Tendencia (50/300)':'S3 Ruptura (100/40)'}</b><span class="act">${a.action==='NA'?'—':a.action}</span>${extra}${det}<div class="mut">vela cerrada ${sig.bar||'—'} UTC${st&&st.paused?' · <span class="dn">PAUSADA</span>':''}</div>`;
+  if(lastAct[id]&&lastAct[id]!==a.action)notify(`${id}: ${a.action}`);lastAct[id]=a.action}}
+function notify(t){try{if(window.Notification&&Notification.permission==='granted')new Notification('Señal PULSE',{body:t});
+ const x=new (window.AudioContext||window.webkitAudioContext)(),o=x.createOscillator();o.connect(x.destination);o.frequency.value=880;o.start();o.stop(x.currentTime+0.3)}catch(e){}}
+$('notif').onclick=()=>{if(window.Notification)Notification.requestPermission().then(p=>$('notif').textContent=p==='granted'?'🔔 Avisos activos':'🔕 Avisos bloqueados')};
+async function cycle(){await Promise.all([ticker(),mtf(),pulse(),signal()]);$('upd').textContent='Actualizado '+new Date().toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})+' CT'}
 tv();cycle();setInterval(cycle,45000);
 })();

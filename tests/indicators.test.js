@@ -21,4 +21,19 @@ const p=I.pressure([[0,0,0,0,0,'10',0,0,0,'6'],[0,0,0,0,0,'10',0,0,0,'4']]);near
 assert.strictEqual(I.pressure([]),null);
 // swings
 const s=I.swings([1,2,3,9,3,2,1,2,3],[1,0.5,2,3,2,1,0,1,2],2);assert.strictEqual(s.swingHigh,9);assert.strictEqual(s.swingLow,0);
+// --- PULSE signal levels ---
+near(I.smaLast([1,2,3,4],2),3.5);assert.strictEqual(I.smaLast([1],2),null);
+assert.deepStrictEqual(I.closedOnly([[0,0,0,0,0,0,99],[0,0,0,0,0,0,200]],150).length,1);
+const upc=Array.from({length:300},(_,i)=>100+i);let l1=I.s1Levels(upc,50,300);assert.ok(l1.entry&&!l1.exit);near(l1.smaFast,374.5);near(l1.smaSlow,249.5);
+l1=I.s1Levels(upc.slice().reverse(),50,300);assert.ok(!l1.entry&&l1.exit);assert.strictEqual(I.s1Levels(upc.slice(1),50,300),null);
+// above slow but fast<slow -> no entry
+const mix=[...new Array(250).fill(100),...new Array(50).fill(90)];mix[299]=200;l1=I.s1Levels(mix,50,300);assert.ok(!l1.entry&&l1.exit);
+{const h=[5,6,7,8,9],l=[1,2,3,4,5],c=[3,4,5,6,10];const r=I.s3Levels(h,l,c,3,2);assert.strictEqual(r.hi,8);assert.ok(r.entry);assert.strictEqual(r.lo,3);assert.strictEqual(r.nextHi,9);assert.strictEqual(r.nextLo,4);
+ const r2=I.s3Levels(h,l,[3,4,5,6,2.5],3,2);assert.ok(!r2.entry&&r2.exit);assert.strictEqual(I.s3Levels([1],[1],[1],3,2),null)}
+const NOW=1e12;
+assert.strictEqual(I.pulseAction({position:{entry_ts:NOW-3600e3,entry_px:1},signal:{}},NOW).action,'COMPRAR');
+assert.strictEqual(I.pulseAction({position:{entry_ts:NOW-5*3600e3,entry_px:1},signal:{exit:false}},NOW).action,'MANTENER');
+assert.strictEqual(I.pulseAction({position:{entry_ts:NOW-5*3600e3},signal:{exit:true}},NOW).action,'VENDER');
+assert.strictEqual(I.pulseAction({position:null,signal:{}},NOW).action,'ESPERAR');
+assert.strictEqual(I.pulseAction({position:null,signal:{}},NOW,true).action,'VENDER');
 console.log('indicators.test.js: all tests passed');
