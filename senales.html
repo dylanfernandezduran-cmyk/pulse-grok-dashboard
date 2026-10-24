@@ -42,7 +42,16 @@
   <div class="be" id="ibelive">—</div></div></div>
   <p class="mut small"><b class="am" id="waits">0</b> ventanas en ESPERA / sin valor (no cuentan en ninguno de los dos). Modo invertido = mismo SUBE/BAJA pero al revés; también es solo PAPER. Prueba al menos 300 velas antes de sacar conclusiones.</p>
   <div class="hist" id="hist"></div><button id="reset" type="button" class="link">Borrar marcador</button></section>
- <section class="panel"><h3>Dónde entra el dinero</h3><div class="kv" id="money"><span>Cargando…</span><span></span></div>
+ <section class="panel" id="xtra"><h3>Fuerzas del mercado <span class="mut small">(informativo)</span></h3>
+ <div id="fzState" class="rule300">Cargando…</div><p class="mut small" style="text-align:center;margin:4px 0">orientación, no probabilidad · no cambia la señal de arriba</p>
+ <div class="two"><div><h4>Libro ±0.1% (<span id="fzBkSrc">—</span>)</h4><div class="fzbar"><i id="fzBkB"></i></div><div class="kv" id="fzBk"><span>—</span><span></span></div></div>
+ <div><h4>Ejecutado últimos 60 s (<span id="fzTrSrc">—</span>)</h4><div class="fzbar"><i id="fzTrB"></i></div><div class="kv" id="fzTr"><span>—</span><span></span></div></div></div>
+ <div class="tg"><div>🐋 Ballena (≥$<span id="whTh">250k</span> en 1 orden)<b id="whale">—</b></div><div>Última apertura cerrada (15m)<b id="lastW">—</b></div></div></section>
+<section class="panel"><h3>Velas de 30 s <span class="mut small" id="c30src"></span></h3>
+ <svg id="c30" viewBox="0 0 300 110" preserveAspectRatio="none" style="width:100%;height:120px;background:var(--panel2);border-radius:8px"></svg>
+ <div class="trow"><div>Techo 20<b id="c30hi">—</b></div><div>RSI14<b id="c30rsi">—</b></div><div>Piso 20<b id="c30lo">—</b></div></div>
+ <div class="trow"><div>Vol. relativo<b id="c30rv">—</b></div><div style="grid-column:span 2">Ruptura<b id="c30brk">—</b></div></div></section>
+<section class="panel"><h3>Dónde entra el dinero</h3><div class="kv" id="money"><span>Cargando…</span><span></span></div>
   <p class="mut small">Taker = quién cruza el spread (compras/ventas agresivas). Libro = suma de órdenes en los 20 mejores niveles de cada lado (cambia cada segundo, se puede falsear con órdenes que se retiran). Funding y open interest de futuros perpetuos. <b>El libro, funding y OI solo se muestran, no entran en la regla</b> (no hay historial gratis para probarlos en el backtest).</p></section>
  <section class="panel"><h3>Niveles clave (cerca del precio)</h3><div class="kv" id="lvls"><span>Cargando…</span><span></span></div>
   <p class="mut small">Máx/mín 24 h y swings (pivote de 3 velas) de las últimas 150 velas del intervalo. Si SUBE queda a menos de la distancia mínima de una resistencia (o BAJA de un soporte), la señal pasa a ESPERA.</p></section>
@@ -316,5 +325,62 @@ notifBtn();render();connectCL();refresh();fetchMoney();setInterval(tick,1000);se
 setInterval(async()=>{if(!cur||!cur.t||document.visibilityState==='hidden')return;await pmLive(iv,cur.t);render()},5000);
 })();
 
+</script>
+<style>.fzbar{height:10px;border-radius:5px;background:var(--red);overflow:hidden;margin:4px 0 6px}.fzbar i{display:block;height:100%;background:var(--green);width:50%}</style>
+<script>
+/* Paneles informativos v4.2: NO tocan la señal, marcador, objetivo Chainlink ni cuotas CLOB */
+(function(){'use strict';
+const $=id=>document.getElementById(id),WH=250000,usd=n=>n==null?'—':'$'+(n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(0)+'k':n.toFixed(0));
+const px=n=>'$'+n.toLocaleString('es-MX',{maximumFractionDigits:1});
+async function jf(u,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||7000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error(r.status);return await r.json()}finally{clearTimeout(t)}}
+let bk=null,tr=null;
+async function book(){const S=[['Binance',async()=>{const j=await jf('https://data-api.binance.vision/api/v3/depth?symbol=BTCUSDT&limit=1000');return{b:j.bids,a:j.asks}}],
+ ['OKX',async()=>{const j=await jf('https://www.okx.com/api/v5/market/books?instId=BTC-USDT&sz=400');return{b:j.data[0].bids,a:j.data[0].asks}}],
+ ['Coinbase',async()=>{const j=await jf('https://api.exchange.coinbase.com/products/BTC-USD/book?level=2');return{b:j.bids,a:j.asks}}]];
+ for(const [n,f] of S){try{const d=await f(),bb=+d.b[0][0],ba=+d.a[0][0],m=(bb+ba)/2,lo=m*0.999,hi=m*1.001;let B=0,A=0,big=null;
+  for(const [p,q] of d.b){const P=+p,u=P*q;if(P<lo)break;B+=u;if(!big||u>big.u)big={u,p:P,s:'compra'}}
+  for(const [p,q] of d.a){const P=+p,u=P*q;if(P>hi)break;A+=u;if(!big||u>big.u)big={u,p:P,s:'venta'}}
+  if(B+A>0){bk={src:n,buy:B/(B+A),B,A,big,m};return}}catch(e){}}bk=null}
+async function trades(){const now=Date.now(),S=[['Binance',async()=>(await jf('https://data-api.binance.vision/api/v3/aggTrades?symbol=BTCUSDT&limit=1000&startTime='+(now-60000))).map(x=>({p:+x.p,q:+x.q,t:x.T,buy:!x.m}))],
+ ['OKX',async()=>(await jf('https://www.okx.com/api/v5/market/trades?instId=BTC-USDT&limit=500')).data.map(x=>({p:+x.px,q:+x.sz,t:+x.ts,buy:x.side==='buy'}))],
+ ['Coinbase',async()=>(await jf('https://api.exchange.coinbase.com/products/BTC-USD/trades?limit=1000')).map(x=>({p:+x.price,q:+x.size,t:Date.parse(x.time),buy:x.side==='sell'}))]];
+ for(const [n,f] of S){try{const a=(await f()).filter(x=>x.t>=now-60000);if(!a.length)continue;let B=0,A=0,big=null;
+  for(const x of a){const u=x.p*x.q;x.buy?B+=u:A+=u;if(!big||u>big.u)big={u,p:x.p,s:x.buy?'compra':'venta'}}
+  tr={src:n,buy:B/(B+A),B,A,big,n:a.length};return}catch(e){}}tr=null}
+function pct(x){return (100*x).toFixed(0)+'%'}
+function drawF(){
+ if(bk){$('fzBkSrc').textContent=bk.src;$('fzBkB').style.width=pct(bk.buy);$('fzBk').innerHTML=`<span>Compra</span><span class="up">${pct(bk.buy)} · ${usd(bk.B)}</span><span>Venta</span><span class="dn">${pct(1-bk.buy)} · ${usd(bk.A)}</span><span>Nivel más grande</span><span>${usd(bk.big.u)} ${bk.big.s} @ ${px(bk.big.p)}</span>`}
+ else $('fzBk').innerHTML='<span>Sin libro (bloqueado)</span><span></span>';
+ if(tr){$('fzTrSrc').textContent=tr.src;$('fzTrB').style.width=pct(tr.buy);$('fzTr').innerHTML=`<span>Compra</span><span class="up">${pct(tr.buy)} · ${usd(tr.B)}</span><span>Venta</span><span class="dn">${pct(1-tr.buy)} · ${usd(tr.A)}</span><span>Orden más grande</span><span>${usd(tr.big.u)} ${tr.big.s}</span>`;
+  const w=tr.big.u>=WH;$('whale').innerHTML=w?`<span class="${tr.big.s==='compra'?'up':'dn'}">🟢 SÍ · ${usd(tr.big.u)} ${tr.big.s}</span>`:'<span class="mut">⚪ No</span>'}
+ else{$('fzTr').innerHTML='<span>Sin trades</span><span></span>';$('whale').textContent='—'}
+ const s=$('fzState');if(!bk||!tr){s.textContent='Datos incompletos';s.style.color=s.style.borderColor='#8a93a0';return}
+ let t='Sin ventaja clara',c='#f5b942';
+ if(bk.buy>.6&&tr.buy>.6){t='Posible UP ▲ (libro y ejecución compran)';c='var(--green)'}else if(bk.buy<.4&&tr.buy<.4){t='Posible DOWN ▼ (libro y ejecución venden)';c='var(--red)'}
+ s.textContent=t;s.style.color=s.style.borderColor=c}
+async function loopF(){if(document.visibilityState!=='hidden'){await Promise.all([book(),trades()]);drawF()}}
+// ---- velas 30 s (de trades Coinbase, respaldo Binance 1s agregadas) ----
+async function c30(){let k=null,src='';
+ try{const j=await jf('https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1s&limit=1000');k=j.map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}));src='Binance 1s→30s'}catch(e){}
+ if(!k){try{const r=await jf("https://api.exchange.coinbase.com/products/BTC-USD/trades?limit=1000");k=r.map(x=>{const p=+x.price;return{t:Date.parse(x.time),o:p,h:p,l:p,c:p,v:+x.size}}).sort((a,b)=>a.t-b.t);src="Coinbase trades→30s"}catch(e){}}
+ if(!k){$('c30src').textContent='(sin datos)';return}
+ const m=new Map();for(const x of k){const b=Math.floor(x.t/30000)*30000,c=m.get(b);if(!c)m.set(b,{t:b,o:x.o,h:x.h,l:x.l,c:x.c,v:x.v});else{c.h=Math.max(c.h,x.h);c.l=Math.min(c.l,x.l);c.c=x.c;c.v+=x.v}}
+ const C=[...m.values()].sort((a,b)=>a.t-b.t),closed=C.filter(x=>x.t+30000<=Date.now());$('c30src').textContent='('+src+')';if(closed.length<22)return;
+ const L=closed[closed.length-1],prev=closed.slice(-21,-1),hi=Math.max(...prev.map(x=>x.h)),lo=Math.min(...prev.map(x=>x.l)),av=prev.reduce((a,x)=>a+x.v,0)/20,rv=av>0?L.v/av:null;
+ const cl=closed.map(x=>x.c);let g=0,l=0;const n=14,st=cl.length-1-n*3;for(let i=Math.max(1,st);i<cl.length;i++){const d=cl[i]-cl[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n}const R=l===0?100:100-100/(1+g/l);
+ $('c30hi').textContent=px(hi);$('c30lo').textContent=px(lo);$('c30rsi').textContent=R.toFixed(0);$('c30rv').textContent=rv==null?'—':rv.toFixed(2)+'x';
+ let b='<span class="mut">Sin ruptura</span>';if(rv>=1.5&&L.c<lo)b='<span class="dn">Ruptura bajista ▼</span>';else if(rv>=1.5&&L.c>hi)b='<span class="up">Ruptura alcista ▲</span>';else if(L.c<lo||L.c>hi)b='<span class="am">Rompió sin volumen (débil)</span>';$('c30brk').innerHTML=b;
+ const V=C.slice(-40),mx=Math.max(...V.map(x=>x.h),hi),mn=Math.min(...V.map(x=>x.l),lo),Y=p=>4+(mx-p)/(mx-mn||1)*102,w=300/V.length;
+ let s=`<line x1="0" x2="300" y1="${Y(hi)}" y2="${Y(hi)}" stroke="#8a93a0" stroke-dasharray="3"/><line x1="0" x2="300" y1="${Y(lo)}" y2="${Y(lo)}" stroke="#8a93a0" stroke-dasharray="3"/>`;
+ V.forEach((x,i)=>{const col=x.c>=x.o?'#2ecc71':'#e74c3c',cx=i*w+w/2;s+=`<line x1="${cx}" x2="${cx}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}"/><rect x="${i*w+1}" width="${Math.max(1,w-2)}" y="${Math.min(Y(x.o),Y(x.c))}" height="${Math.max(1,Math.abs(Y(x.o)-Y(x.c)))}" fill="${col}"/>`});$('c30').innerHTML=s}
+// ---- última apertura cerrada 15m (Chainlink guardado por la página → priceToBeat oficial → exchange) ----
+async function lastW(){const G=900000,now=Date.now(),t0=Math.floor(now/G)*G-G,t1=t0+G;let o=null,c=null,how='Chainlink';
+ const rd=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}},X=rd('senales4_clexact'),T=rd('senales3_cltwap');o=X[t0]??T[t0]??null;c=X[t1]??T[t1]??null;
+ if(o==null||c==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-15m-${t0/1000}`),m=a&&a[0]&&a[0].markets&&a[0].markets[0],md=m&&(m.eventMetadata||a[0].eventMetadata);if(md){if(o==null&&md.priceToBeat)o=+md.priceToBeat;if(c==null&&md.finalPrice)c=+md.finalPrice}}catch(e){}}
+ if(o==null||c==null){try{const j=await jf(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&startTime=${t0}&limit=1`);o=o??+j[0][1];c=c??+j[0][4];how='Binance (no Chainlink)'}catch(e){}}
+ if(o==null||c==null){$('lastW').textContent='—';return}const up=c>=o,p=(c-o)/o*100,hh=new Date(t0).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+ $('lastW').innerHTML=`<span class="${up?'up':'dn'}">${up?'UP ▲':'DOWN ▼'} ${p>=0?'+':''}${p.toFixed(3)}%</span><br><span class="mut" style="font-size:11px">${hh} · abrió ${px(o)} → cerró ${px(c)} · ${how}</span>`}
+$('whTh').textContent=(WH/1000)+'k';loopF();c30();lastW();setInterval(loopF,5000);setInterval(()=>{if(document.visibilityState!=='hidden')c30()},10000);setInterval(lastW,30000);
+})();
 </script>
 </body></html>
