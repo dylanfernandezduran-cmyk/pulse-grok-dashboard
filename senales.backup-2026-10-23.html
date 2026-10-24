@@ -1,0 +1,204 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PULSE · Señales BTC (PAPER)</title><meta name="theme-color" content="#0b0d10">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Señales">
+<link rel="stylesheet" href="terminal.css?v=2"><link rel="stylesheet" href="senales.css?v=2">
+<style>.dir.WAIT{color:#f5b942;border-color:#f5b942;background:rgba(245,185,66,.12);font-size:34px}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;font:12px var(--mono)}.tg div{background:var(--panel2);border-radius:8px;padding:6px}.tg b{display:block;font-size:16px}
+.be{padding:8px 10px;border-radius:8px;background:var(--panel2);font-size:13px;margin-top:8px}.rule300{border:1px solid #f5b942;color:#f5b942;padding:8px 10px;border-radius:8px;font-weight:700;font-size:14px;text-align:center}
+.up{color:var(--green)}.dn{color:var(--red)}.am{color:#f5b942}</style></head><body>
+<header class="hs"><div class="logo">P</div><b>PULSE Señales · BTC</b>
+<nav><a href="./index.html">Dashboard</a><a href="./terminal.html">Terminal</a><a href="./senales.html" class="on">Señales</a></nav><div class="sp"></div>
+<span class="mut" id="upd">—</span></header>
+<main class="sw">
+ <section class="panel big" id="big">
+  <div class="mut" id="tgt">Señal para la vela actual (fija desde la apertura)</div>
+  <div class="dirw"><span id="dir" class="dir gray">Cargando…</span></div>
+  <div id="status" class="status" style="display:none"></div>
+  <div class="cd"><span class="mut">Cierra en</span> <b id="cd">--:--</b></div>
+  <div class="tg">
+   <div><span class="mut">Precio de apertura / objetivo</span><b id="op">—</b><span class="mut" id="opsrc">—</span></div>
+   <div><span class="mut">Precio actual · diferencia</span><b id="px">—</b><span id="diff" class="mut">—</span></div>
+  </div>
+  <div class="mut small" id="src">—</div>
+  <div class="votes" id="votes"></div>
+  <button id="notif" type="button">🔔 Activar avisos + sonido</button>
+ </section>
+ <div class="ivsel" role="group" aria-label="Intervalo"><button data-iv="5m">5m</button><button data-iv="15m">15m</button></div>
+ <div class="banner sm">⚠ Solo PAPER / educativo. No es consejo financiero. Sin dinero real. Predecir la siguiente vela de 5-15 min es prácticamente una moneda al aire; mira el backtest antes de creer nada.</div>
+ <div class="rule300">Prueba en papel al menos 300 velas; si no pasa de 55%, no apuestes.</div>
+ <section class="panel"><h3>Marcador en vivo (este dispositivo · <span id="ivl">5m</span>)</h3>
+  <div class="score"><div><b class="up" id="hits">0</b><span>Aciertos</span></div><div><b class="dn" id="miss">0</b><span>Fallos</span></div><div><b id="acc">—</b><span>% Acierto (solo SUBE/BAJA)</span></div><div><b class="am" id="waits">0</b><span>ESPERA (no cuentan)</span></div></div>
+  <div class="be" id="belive">Punto de equilibrio: con comisiones necesitas acertar más de ~53% para ganar dinero.</div>
+  <div class="hist" id="hist"></div><button id="reset" type="button" class="link">Borrar marcador</button></section>
+ <section class="panel"><h3>Backtest histórico (señal fija en apertura + filtro ESPERA · últimas ~1000 velas)</h3>
+  <div class="score"><div><b id="btacc">—</b><span>% Acierto en señales</span></div><div><b id="btn">—</b><span>Señales evaluadas</span></div><div><b class="am" id="btskip">—</b><span>Saltadas (ESPERA) / total</span></div></div>
+  <div class="be" id="bebt">—</div>
+  <p class="mut small">≈50% = lanzar una moneda. Equilibrio ≈53% (comisiones/spread). Un backtest pasado no garantiza nada. El backtest usa velas del exchange, no el TWAP de Chainlink del mercado.</p></section>
+ <section class="panel"><h3>La regla (transparente)</h3><ol class="small">
+  <li><b>EMA9 vs EMA21</b> del cierre: EMA9 &gt; EMA21 → +1, &lt; → −1.</li>
+  <li><b>RSI14</b>: &gt; 55 → +1, &lt; 45 → −1, entre medio → 0.</li>
+  <li><b>Ratio taker-buy</b> de la última vela cerrada: &gt; 0.52 → +1, &lt; 0.48 → −1, si no 0 (solo Binance da este dato).</li>
+  <li>Total ≥ +2 → <b class="up">SUBE</b>; ≤ −2 → <b class="dn">BAJA</b>; si no (−1, 0, +1) → <b class="am">ESPERA / NO APOSTAR</b>.</li></ol>
+  <p class="mut small">La señal se calcula <b>una sola vez</b> con las velas ya cerradas al inicio de la ventana y queda fija hasta el cierre (no cambia a mitad de vela). El marcador califica solo esa señal fija. Velas con cierre = apertura no cuentan. Calificación, en este orden: 1) resultado oficial del mercado Polymarket (gamma-api, ventana btc-updown-5m/15m ya cerrada); 2) si no está, TWAP 60 s de Chainlink capturado por esta página al inicio y al final (SUBE si final ≥ objetivo); 3) si no, la vela del exchange.</p>
+  <p class="mut small"><b>Fuente del mercado:</b> los mercados BTC Up/Down de Phantom (World Prediction Markets) y Polymarket se resuelven con el <b>Chainlink BTC/USD TWAP 60 s</b>: el objetivo es el TWAP al inicio de la ventana y gana SUBE si el TWAP al final es ≥ ese objetivo. Esta página toma el precio Chainlink por segundo del feed público de Polymarket (ws-live-data.polymarket.com) y calcula un TWAP 60 s aproximado; puede diferir unos dólares del objetivo oficial. Las cuotas Up/Down en vivo vienen de gamma-api.polymarket.com. Polymarket solo publica el «price to beat» oficial cuando la ventana ya cerró (su endpoint en vivo no permite acceso desde otras webs), por eso el objetivo de la ventana actual es nuestra aproximación. Verifica siempre el objetivo en la app.</p></section>
+</main>
+<footer>Velas: Binance (data-api.binance.vision) · respaldo Coinbase / Kraken / Bybit. Precio objetivo: Chainlink BTC/USD vía feed público de Polymarket (aprox. TWAP 60 s). Cuotas y resultados oficiales: gamma-api.polymarket.com. Marcador en localStorage de este navegador. Solo paper, sin dinero real.</footer>
+<script>
+// PULSE Señales v3 (todo en esta página). Regla pura + UI.
+(function(root){
+function emaLast(v,n){if(v.length<n)return null;const k=2/(n+1);let e=v.slice(0,n).reduce((a,b)=>a+b,0)/n;for(let i=n;i<v.length;i++)e=v[i]*k+e*(1-k);return e}
+function rsi(v,n){n=n||14;if(v.length<=n)return null;let g=0,l=0;for(let i=1;i<=n;i++){const d=v[i]-v[i-1];if(d>0)g+=d;else l-=d}g/=n;l/=n;for(let i=n+1;i<v.length;i++){const d=v[i]-v[i-1];g=(g*(n-1)+(d>0?d:0))/n;l=(l*(n-1)+(d<0?-d:0))/n}if(l===0)return g===0?50:100;return 100-100/(1+g/l)}
+const MIN_SCORE=2;
+// candles cerradas (antigua primero). dir: UP / DOWN / WAIT (ESPERA)
+function predict(candles){
+  if(!candles||candles.length<22)return null;
+  const cl=candles.map(x=>x.c),last=candles[candles.length-1];
+  const e9=emaLast(cl,9),e21=emaLast(cl,21),r=rsi(cl,14);
+  const vEma=e9>e21?1:e9<e21?-1:0, vRsi=r==null?0:r>55?1:r<45?-1:0;
+  const tr=(last.tb!=null&&last.v>0)?last.tb/last.v:null, vTk=tr==null?0:tr>0.52?1:tr<0.48?-1:0;
+  const score=vEma+vRsi+vTk;
+  const dir=score>=MIN_SCORE?'UP':score<=-MIN_SCORE?'DOWN':'WAIT';
+  return {dir,score,ema9:e9,ema21:e21,rsi:r,taker:tr,votes:{ema:vEma,rsi:vRsi,taker:vTk}};
+}
+function outcome(c){return c.c>c.o?'UP':c.c<c.o?'DOWN':null}
+// Backtest: señal fija con velas cerradas antes de la vela i (cerradas en su apertura), evalúa vela i.
+function backtest(candles,warm){warm=warm||60;let hit=0,miss=0,skip=0,flat=0;
+  for(let i=Math.max(warm,22);i<candles.length;i++){const p=predict(candles.slice(Math.max(0,i-300),i));if(!p)continue;
+    if(p.dir==='WAIT'){skip++;continue}const o=outcome(candles[i]);if(!o){flat++;continue}p.dir===o?hit++:miss++}
+  const n=hit+miss;return {hit,miss,n,skip,flat,acc:n?100*hit/n:null}}
+function fromBinance(k){return {t:+k[0],T:+k[6],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],tb:+k[9]}}
+// TWAP 60 s aproximado: media de ticks por segundo en (t-60s, t]
+function twap(ticks,t){const w=ticks.filter(x=>x.t>t-60000&&x.t<=t);if(w.length<30)return null;return w.reduce((a,x)=>a+x.v,0)/w.length}
+const api={emaLast,rsi,predict,outcome,backtest,fromBinance,twap,MIN_SCORE};
+if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SR=api;
+})(typeof self!=='undefined'?self:this);
+if(typeof document!=='undefined')(function(){
+const $=id=>document.getElementById(id);
+const MS={'5m':300000,'15m':900000},CB={'5m':300,'15m':900},BE=53;
+let iv=localStorage.getItem('senales_iv');if(!MS[iv])iv='5m';
+let cur=null,loading=false,src='',lastPx=null;
+const K=()=>'senales3_preds_'+iv;
+const load=()=>{try{return JSON.parse(localStorage.getItem(K()))||[]}catch(e){return []}};
+const save=a=>localStorage.setItem(K(),JSON.stringify(a.slice(-1000)));
+const fmt=n=>n==null?'—':'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+const lbl=d=>d==='UP'?'SUBE ▲':d==='DOWN'?'BAJA ▼':'ESPERA / NO APOSTAR';
+// ---- Chainlink BTC/USD (feed público de Polymarket) ----
+let ticks=[],clOk=false,ws=null;
+const TW='senales3_cltwap';
+const twLoad=()=>{try{return JSON.parse(localStorage.getItem(TW))||{}}catch(e){return {}}};
+function twSave(t,v){const o=twLoad();o[t]=v;const ks=Object.keys(o).map(Number).sort((a,b)=>a-b);while(ks.length>3000)delete o[ks.shift()];localStorage.setItem(TW,JSON.stringify(o))}
+function addTick(t,v){if(!isFinite(v))return;if(ticks.length&&t<=ticks[ticks.length-1].t){if(!ticks.some(x=>x.t===t)){ticks.push({t,v});ticks.sort((a,b)=>a.t-b.t)}}else ticks.push({t,v});
+  const cut=Date.now()-1200000;while(ticks.length&&ticks[0].t<cut)ticks.shift();clOk=true;captureBoundaries()}
+function captureBoundaries(){if(!ticks.length)return;const last=ticks[ticks.length-1].t,o=twLoad();
+  for(const g of [300000,900000]){const b=Math.floor(last/g)*g;for(const bb of [b,b-g]){if(o[bb]==null&&last>=bb&&ticks[0].t<=bb-55000){const v=SR.twap(ticks,bb);if(v!=null)twSave(bb,v)}}}}
+function connectCL(){try{ws=new WebSocket('wss://ws-live-data.polymarket.com');
+  ws.onopen=()=>{ws.send(JSON.stringify({action:'subscribe',subscriptions:[{topic:'crypto_prices_chainlink',type:'*',filters:'{"symbol":"btc/usd"}'}]}));ws._p=setInterval(()=>{try{ws.send('PING')}catch(e){}},5000)};
+  ws.onmessage=m=>{let j;try{j=JSON.parse(m.data)}catch(e){return}const p=j&&j.payload;if(!p)return;
+    if(Array.isArray(p.data))p.data.forEach(x=>addTick(+x.timestamp,+x.value));else if(p.symbol==='btc/usd'&&p.value!=null)addTick(+p.timestamp,+p.value);render()};
+  ws.onclose=()=>{clearInterval(ws._p);clOk=false;setTimeout(connectCL,5000)};ws.onerror=()=>{try{ws.close()}catch(e){}}}catch(e){console.warn('CL',e)}}
+// ---- velas de exchange ----
+function tfetch(u,ms){const c=typeof AbortController!=='undefined'?new AbortController():null;const t=setTimeout(function(){if(c)c.abort()},ms||9000);
+  return fetch(u,{cache:'no-store',signal:c?c.signal:undefined}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()},function(e){clearTimeout(t);throw e})}
+const SRC=[
+ ['Binance BTCUSDT',async()=>(await tfetch(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=${iv}&limit=1000`)).map(SR.fromBinance)],
+ ['Coinbase BTC-USD',async()=>{const g=CB[iv];let out=[],end=Math.floor(Date.now()/1000);
+   for(let p=0;p<4;p++){const st=end-300*g;const a=await tfetch(`https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=${g}&start=${new Date(st*1000).toISOString()}&end=${new Date(end*1000).toISOString()}`);if(!a.length)break;out=a.concat(out);end=st}
+   return out.map(x=>({t:x[0]*1000,T:x[0]*1000+MS[iv]-1,o:+x[3],h:+x[2],l:+x[1],c:+x[4],v:+x[5],tb:null}))}],
+ ['Kraken XBTUSD',async()=>{const j=await tfetch(`https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=${MS[iv]/60000}`);const k=Object.keys(j.result).filter(x=>x!=='last')[0];
+   return j.result[k].map(x=>({t:x[0]*1000,T:x[0]*1000+MS[iv]-1,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[6],tb:null}))}],
+ ['Bybit BTCUSDT',async()=>{const j=await tfetch(`https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=${MS[iv]/60000}&limit=1000`);
+   return j.result.list.map(x=>({t:+x[0],T:+x[0]+MS[iv]-1,o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5],tb:null}))}]
+];
+async function fetchCandles(){const errs=[];
+  for(const [name,fn] of SRC){try{const a=await fn();const m=new Map();a.forEach(c=>{if(isFinite(c.c))m.set(c.t,c)});const out=[...m.values()].sort((x,y)=>x.t-y.t).slice(-1000);
+      if(out.length<30)throw new Error('pocas velas');src=name+(name.indexOf('Binance')===0?'':' (sin taker)');return out}
+    catch(e){console.warn(name,e);errs.push(name+': '+(e&&e.name==='AbortError'?'timeout':(e&&e.message||e)))}}
+  throw new Error(errs.join(' · '))}
+function beTxt(acc,n,what){if(acc==null)return `${what}: sin señales aún. Equilibrio ≈${BE}% (con comisiones necesitas acertar más de ~${BE}% para ganar dinero).`;
+  const d=acc-BE;return `${what}: ${acc.toFixed(1)}% en ${n} señales vs equilibrio ~${BE}% → ${d>0?'<b class="up">+'+d.toFixed(1)+' pts por encima</b>':'<b class="dn">'+d.toFixed(1)+' pts por debajo (perderías dinero)</b>'}${n<300?' · muestra pequeña (&lt;300), no es concluyente':''}.`}
+// ---- Polymarket gamma-api (CORS abierto): cuotas en vivo y resultado oficial de ventanas cerradas ----
+let pmOdds=null;
+const PMK='senales3_pmres';
+const pmLoad=()=>{try{return JSON.parse(localStorage.getItem(PMK))||{}}catch(e){return {}}};
+async function pmEvent(t,ivx){const a=await tfetch(`https://gamma-api.polymarket.com/events?slug=btc-updown-${ivx}-${Math.floor(t/1000)}`,7000);return a&&a[0]}
+async function pmUpdate(myIv,tOpen,preds){
+  try{const e=await pmEvent(tOpen,myIv);const m=e&&e.markets&&e.markets[0];if(m){const p=JSON.parse(m.outcomePrices||'[]'),o=JSON.parse(m.outcomes||'[]');pmOdds={t:tOpen,up:+p[o.indexOf('Up')],down:+p[o.indexOf('Down')],slug:e.slug}}else pmOdds=null}catch(e){pmOdds=null;console.warn('PM odds',e)}
+  const store=pmLoad();const pend=preds.filter(p=>p.dir!=='WAIT'&&p.t+MS[myIv]<=Date.now()&&p.t>Date.now()-86400000&&!(store[myIv+p.t])).slice(-6);
+  for(const p of pend){try{const e=await pmEvent(p.t,myIv);const m=e&&e.markets&&e.markets[0];if(!m||!m.closed)continue;const pr=JSON.parse(m.outcomePrices||'[]'),o=JSON.parse(m.outcomes||'[]');
+    const up=+pr[o.indexOf('Up')];if(up!==0&&up!==1)continue;store[myIv+p.t]={res:up===1?'UP':'DOWN',ptb:e.eventMetadata&&e.eventMetadata.priceToBeat};}catch(e){}}
+  const ks=Object.keys(store);if(ks.length>3000)ks.slice(0,ks.length-3000).forEach(k=>delete store[k]);localStorage.setItem(PMK,JSON.stringify(store));return store}
+async function refresh(){
+  if(loading)return;loading=true;const myIv=iv;
+  try{
+    const all=await fetchCandles();if(myIv!==iv)return;const now=Date.now();
+    const closed=all.filter(c=>c.T<now),open=all.find(c=>c.T>=now);
+    const tOpen=Math.floor(now/MS[iv])*MS[iv];
+    const preds=load(),byT=new Map(all.map(c=>[c.t,c])),tw=twLoad();const pm=await pmUpdate(myIv,tOpen,preds);if(myIv!==iv)return;
+    // calificar pendientes (solo SUBE/BAJA; ESPERA queda como 'wait')
+    preds.forEach(p=>{if(p.dir!=='WAIT'&&pm[iv+p.t]&&p.how!=='PM'){p.res=pm[iv+p.t].res===p.dir?'hit':'miss';p.how='PM';return}if(p.res!=null||p.t+MS[iv]>now)return;if(p.dir==='WAIT'){p.res='wait';return}
+      const a=tw[p.t],b=tw[p.t+MS[iv]];let o=null,how=null;
+      if(a!=null&&b!=null){o=b>=a?'UP':'DOWN';how='CL'}else{const c=byT.get(p.t);if(c&&c.T<now){o=SR.outcome(c);how='EX';if(o==null){p.res='flat';return}}}
+      if(o){p.res=o===p.dir?'hit':'miss';p.how=how}});
+    // señal fija: se crea una vez por ventana con velas cerradas antes de su apertura
+    let lock=preds.find(p=>p.t===tOpen);
+    if(!lock){const base=closed.filter(c=>c.t<tOpen);const pr=SR.predict(base.slice(-300));
+      if(pr){lock={t:tOpen,dir:pr.dir,score:pr.score,rsi:pr.rsi,taker:pr.taker,votes:pr.votes,late:now-tOpen>20000,res:null};preds.push(lock);notify(lock)}}
+    save(preds);
+    cur={t:tOpen,T:tOpen+MS[iv]-1,lock,open};
+    const bt=SR.backtest(closed);
+    $('btacc').textContent=bt.acc==null?'—':bt.acc.toFixed(1)+'%';$('btacc').className=bt.acc>55?'up':bt.acc>BE?'am':'dn';$('btn').textContent=bt.n;$('btskip').textContent=bt.skip+' / '+(bt.n+bt.skip+bt.flat);
+    $('bebt').innerHTML=beTxt(bt.acc,bt.n,'Backtest');
+    $('status').style.display='none';$('upd').textContent='Act. '+new Date().toLocaleTimeString('es-MX');
+    render();
+  }catch(e){console.error(e);$('upd').textContent='Error de datos';if(!cur){const d=$('dir');d.textContent='Sin datos';d.className='dir gray err';}$('status').textContent='⚠ No se pudieron cargar velas ('+(e&&e.message||e)+'). Reintento en 30 s.';$('status').style.display='block'}
+  finally{loading=false}
+}
+function render(){
+  document.querySelectorAll('.ivsel button').forEach(b=>b.classList.toggle('on',b.dataset.iv===iv));$('ivl').textContent=iv;
+  if(cur&&cur.lock){const L=cur.lock,d=$('dir');d.textContent=lbl(L.dir);d.className='dir '+L.dir;
+    $('tgt').textContent=`Señal fija vela ${iv} de ${new Date(cur.t).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})} (calculada en la apertura, no cambia)`+(L.late?' · abriste la página tarde: se calculó con datos cerrados en la apertura':'');
+    const v=L.votes,s=x=>x>0?'+1':x<0?'−1':'0';
+    $('votes').innerHTML=`<span>EMA9/21 ${s(v.ema)}</span><span>RSI ${L.rsi==null?'—':L.rsi.toFixed(1)} ${s(v.rsi)}</span><span>Taker ${L.taker==null?'—':L.taker.toFixed(2)} ${s(v.taker)}</span><span>Total ${L.score>0?'+':''}${L.score} (necesita ±${SR.MIN_SCORE})</span>`;
+    // precio objetivo y actual
+    const tw=twLoad(),clOpen=tw[cur.t],clNow=ticks.length?SR.twap(ticks,ticks[ticks.length-1].t):null;
+    const exOpen=cur.open?cur.open.o:null,exNow=cur.open?cur.open.c:null;
+    let o,n,os,ns;
+    if(clOpen!=null&&clNow!=null){o=clOpen;n=clNow;os='Chainlink TWAP 60 s (aprox.)';ns='Chainlink TWAP 60 s'}
+    else{o=exOpen;n=exNow;os=src+' (apertura vela exchange; el objetivo del mercado puede diferir)';ns=src+(clNow!=null?' · Chainlink ahora '+fmt(clNow):'')}
+    $('op').textContent=fmt(o);$('opsrc').textContent=os;$('px').textContent=fmt(n);
+    if(o!=null&&n!=null){const df=n-o;$('diff').innerHTML=`<b class="${df>=0?'up':'dn'}" style="display:inline;font-size:13px">${df>=0?'+':''}${df.toFixed(2)}</b> vs objetivo · ${ns}`}else $('diff').textContent='—';
+    $('src').innerHTML=(pmOdds&&pmOdds.t===cur.t&&isFinite(pmOdds.up)?`<b>Polymarket ahora: Up ${(100*pmOdds.up).toFixed(1)}% · Down ${(100*pmOdds.down).toFixed(1)}%</b> (${pmOdds.slug})<br>`:'')+`Velas/indicadores: ${src}. Objetivo: ${clOpen!=null?'Chainlink BTC/USD (feed público Polymarket), TWAP 60 s calculado aquí':'Chainlink no disponible para esta apertura (abre la página antes del inicio de la vela) → se usa '+src}. ${clOk?'🟢 Chainlink conectado':'⚪ Chainlink sin conexión'}. Verifica el objetivo exacto en la app.`}
+  const ps=load(),h=ps.filter(p=>p.res==='hit').length,m=ps.filter(p=>p.res==='miss').length,w=ps.filter(p=>p.dir==='WAIT').length;
+  $('hits').textContent=h;$('miss').textContent=m;$('waits').textContent=w;const acc=h+m?100*h/(h+m):null;$('acc').textContent=acc==null?'—':acc.toFixed(1)+'%';
+  $('belive').innerHTML=beTxt(acc,h+m,'En vivo');
+  $('hist').innerHTML=ps.filter(p=>p.res==='hit'||p.res==='miss').slice(-60).map(p=>`<i class="${p.res[0]}" title="${new Date(p.t).toLocaleString('es-MX')} ${lbl(p.dir)} (${p.how==='PM'?'Polymarket oficial':p.how==='CL'?'Chainlink':'exchange'})"></i>`).join('');
+}
+function tick(){
+  if(!cur||!cur.t)return;const left=cur.T+1-Date.now();
+  if(left<=-2000){refresh();return}
+  const s=Math.max(0,Math.ceil(left/1000));$('cd').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+let actx=null;
+function beep(up){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=up?880:440;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.2,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.5);o.start();o.stop(actx.currentTime+.5)}catch(e){}}
+function notify(pr){
+  if(localStorage.getItem('senales_notif')!=='1'||pr.dir==='WAIT')return;beep(pr.dir==='UP');
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const title=`BTC ${iv}: ${lbl(pr.dir)} (PAPER)`,opt={body:`Puntaje ${pr.score}. Educativo, no es consejo financiero.`,icon:'icon-192.png',tag:'senal'};
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(r=>r.showNotification(title,opt));else try{new Notification(title,opt)}catch(e){}
+}
+function notifBtn(){$('notif').textContent=localStorage.getItem('senales_notif')==='1'?'🔕 Desactivar avisos':'🔔 Activar avisos + sonido'}
+$('notif').onclick=async()=>{
+  if(localStorage.getItem('senales_notif')==='1'){localStorage.setItem('senales_notif','0');notifBtn();return}
+  localStorage.setItem('senales_notif','1');beep(true);
+  if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
+  notifBtn();
+};
+$('reset').onclick=()=>{if(confirm('¿Borrar el marcador de '+iv+'?')){localStorage.removeItem(K());cur=null;refresh()}};
+document.querySelectorAll('.ivsel button').forEach(b=>b.onclick=()=>{iv=b.dataset.iv;localStorage.setItem('senales_iv',iv);cur=null;$('dir').textContent='Cargando…';$('dir').className='dir gray';$('votes').innerHTML='';render();loading=false;refresh()});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=2',{updateViaCache:'none'}).catch(()=>{});
+notifBtn();render();connectCL();refresh();setInterval(tick,1000);setInterval(refresh,30000);setInterval(render,2000);
+})();
+
+</script>
+</body></html>
