@@ -355,7 +355,7 @@ function drawF(){
   const w=tr.big.u>=WH;$('whale').innerHTML=w?`<span class="${tr.big.s==='compra'?'up':'dn'}">🟢 SÍ · ${usd(tr.big.u)} ${tr.big.s}</span>`:'<span class="mut">⚪ No</span>'}
  else{$('fzTr').innerHTML='<span>Sin trades</span><span></span>';$('whale').textContent='—'}
  const s=$('fzState');if(!bk||!tr){s.textContent='Datos incompletos';s.style.color=s.style.borderColor='#8a93a0';return}
- let t='Sin ventaja clara',c='#f5b942';
+ let t='ESPERA · sin ventaja clara',c='#f5b942';
  if(bk.buy>.6&&tr.buy>.6){t='Posible UP ▲ (libro y ejecución compran)';c='var(--green)'}else if(bk.buy<.4&&tr.buy<.4){t='Posible DOWN ▼ (libro y ejecución venden)';c='var(--red)'}
  s.textContent=t;s.style.color=s.style.borderColor=c}
 async function loopF(){if(document.visibilityState!=='hidden'){await Promise.all([book(),trades()]);drawF()}}
