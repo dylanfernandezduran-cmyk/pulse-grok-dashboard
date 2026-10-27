@@ -70,9 +70,9 @@
   <li><b>Filtro niveles</b>: nada de SUBE si hay resistencia a menos de 1×ATR14 (5m) / 0.5×ATR14 (15m); igual con BAJA y soportes.</li>
   <li><b>Filtro cuotas</b>: si Polymarket ya cobra más de 60¢ por nuestro lado al fijar la señal → <b class="am">SIN VALOR</b> (cuenta como ESPERA en el marcador). No entra en el backtest.</li></ol>
   <p class="mut small">La señal se calcula <b>una sola vez</b> con las velas ya cerradas al inicio de la ventana y queda fija hasta el cierre (no cambia a mitad de vela). El marcador califica solo esa señal fija. Velas con cierre = apertura no cuentan. Calificación, en este orden: 1) resultado oficial del mercado Polymarket (gamma-api, ventana btc-updown-5m/15m ya cerrada); 2) si no está, TWAP 60 s de Chainlink capturado por esta página al inicio y al final (SUBE si final ≥ objetivo); 3) si no, la vela del exchange.</p>
-  <p class="mut small"><b>Fuente del mercado:</b> los mercados BTC Up/Down de Phantom (World Prediction Markets) y Polymarket se resuelven con el <b>Chainlink BTC/USD TWAP 60 s</b>: el objetivo es el TWAP al inicio de la ventana y gana SUBE si el TWAP al final es ≥ ese objetivo. Esta página toma el precio Chainlink por segundo del feed público de Polymarket (ws-live-data.polymarket.com) y calcula un TWAP 60 s aproximado; puede diferir unos dólares del objetivo oficial. Las cuotas Up/Down en vivo vienen del libro CLOB de Polymarket (clob.polymarket.com, midpoint cada 5 s). Objetivo, en este orden: priceToBeat oficial de gamma-api (cuando lo publica) → precio Chainlink exacto del segundo de apertura (si tenías la página abierta) → Chainlink ahora menos lo que se movió el exchange desde la apertura (si abriste tarde) → solo como último recurso el exchange, que va ≈$100 arriba. Verifica siempre el objetivo en la app.</p></section>
+  <p class="mut small"><b>Fuente del mercado:</b> Phantom / Polymarket resuelven BTC Up/Down con el <b>Chainlink BTC/USD TWAP 60 s</b> (no el spot): el objetivo es ese TWAP al inicio de la ventana. Esta página pide el mismo openPrice que la app (<code>polymarket.com/api/crypto/crypto-price</code> con <code>twapEnabled=true&amp;twapLookbackSeconds=60</code>), el <code>priceToBeat</code> de gamma-api (evento actual, mercado 5m hermano con el mismo inicio, o <code>finalPrice</code> del 5m anterior) y captura el feed <code>crypto_prices_twap_sixty</code> de ws-live-data.polymarket.com en el segundo de apertura. El precio “ahora” sigue siendo el spot Chainlink. Si el objetivo no es oficial, se marca con ⚠. Cuotas: CLOB midpoint cada 5 s. Verifica siempre el objetivo en la app.</p></section>
 </main>
-<footer>Velas: Binance (data-api.binance.vision) · respaldo Coinbase / Kraken / Bybit. Precio objetivo: Chainlink BTC/USD vía feed público de Polymarket (aprox. TWAP 60 s). Cuotas en vivo: clob.polymarket.com. Resultados oficiales: gamma-api.polymarket.com. Libro: Binance (data-api.binance.vision). Funding/OI: Binance futuros (fapi) si tu país lo permite, si no OKX. Marcador en localStorage de este navegador. Solo paper, sin dinero real.</footer>
+<footer>Velas: Binance (data-api.binance.vision) · respaldo Coinbase / Kraken / Bybit. Objetivo oficial: Chainlink BTC/USD TWAP 60 s (crypto-price + gamma priceToBeat + feed twap_sixty). Spot en vivo: crypto_prices_chainlink. Cuotas: clob.polymarket.com. Resultados: gamma-api.polymarket.com. Libro: Binance. Funding/OI: Binance futuros / OKX. Marcador en localStorage. Solo paper, sin dinero real.</footer>
 <script>
 // PULSE Señales v3 (todo en esta página). Regla pura + UI.
 (function(root){
@@ -138,26 +138,36 @@ const fmt=n=>n==null?'—':'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2
 const lbl=d=>d==='UP'?'SUBE ▲':d==='DOWN'?'BAJA ▼':'ESPERA / NO APOSTAR';
 const counts=p=>p.dir!=='WAIT'&&!p.noValue;
 // ---- Chainlink BTC/USD (feed público de Polymarket) ----
+// Spot = precio "ahora". TWAP 60 s = objetivo oficial de Phantom/Polymarket (mismo que crypto-price?twapEnabled=true&twapLookbackSeconds=60).
 let ticks=[],clOk=false,ws=null;
 const TW='senales3_cltwap';
 const twLoad=()=>{try{return JSON.parse(localStorage.getItem(TW))||{}}catch(e){return {}}};
 function twSave(t,v){const o=twLoad();o[t]=v;const ks=Object.keys(o).map(Number).sort((a,b)=>a-b);while(ks.length>3000)delete o[ks.shift()];localStorage.setItem(TW,JSON.stringify(o))}
 function addTick(t,v){if(!isFinite(v)||!isFinite(t))return;if(t<1e12)t*=1000;if(ticks.length&&t<=ticks[ticks.length-1].t){if(!ticks.some(x=>x.t===t)){ticks.push({t,v});ticks.sort((a,b)=>a.t-b.t)}}else ticks.push({t,v});
-  for(const g of [300000,900000])if(t%g===0)cxSave(t,v);
   const cut=Date.now()-1200000;while(ticks.length&&ticks[0].t<cut)ticks.shift();clOk=true;captureBoundaries()}
+function addTwap60(t,v){if(!isFinite(v)||!isFinite(t))return;if(t<1e12)t*=1000;
+  // El objetivo oficial es el TWAP 60 s en el segundo exacto de apertura (no el spot).
+  for(const g of [300000,900000]){if(t%g===0)cxSave(t,v); else {const b=Math.floor(t/g)*g;if(t-b<=1500)cxSave(b,v)}}}
 function captureBoundaries(){if(!ticks.length)return;const last=ticks[ticks.length-1].t,o=twLoad();
   for(const g of [300000,900000]){const b=Math.floor(last/g)*g;for(const bb of [b,b-g]){if(o[bb]==null&&last>=bb&&ticks[0].t<=bb-55000){const v=SR.twap(ticks,bb);if(v!=null)twSave(bb,v)}}}}
-const CLX='senales4_clexact';
+const CLX='senales5_cltwap60'; // v5: TWAP 60 s oficial (antes senales4_clexact guardaba spot ≠ app)
 const cxLoad=()=>{try{return JSON.parse(localStorage.getItem(CLX))||{}}catch(e){return {}}};
 function cxSave(t,v){const o=cxLoad();if(o[t]!=null)return;o[t]=v;const ks=Object.keys(o).map(Number).sort((a,b)=>a-b);while(ks.length>3000)delete o[ks.shift()];localStorage.setItem(CLX,JSON.stringify(o))}
 let clLast=0,clBack=1000,clTimer=null;
 function clKill(){if(ws){const w=ws;ws=null;try{clearInterval(w._p)}catch(e){}w.onopen=w.onmessage=w.onclose=w.onerror=null;try{w.close()}catch(e){}}clOk=false}
 function clSchedule(){clearTimeout(clTimer);clTimer=setTimeout(connectCL,clBack);clBack=Math.min(clBack*2,15000)}
 function connectCL(){clearTimeout(clTimer);clKill();let w;try{w=new WebSocket('wss://ws-live-data.polymarket.com')}catch(e){console.warn('CL',e);clSchedule();return}ws=w;
-  const sub=()=>{try{w.send(JSON.stringify({action:'subscribe',subscriptions:[{topic:'crypto_prices_chainlink',type:'*',filters:'{"symbol":"btc/usd"}'}]}))}catch(e){}};
+  const sub=()=>{try{w.send(JSON.stringify({action:'subscribe',subscriptions:[
+    {topic:'crypto_prices_chainlink',type:'*',filters:'{"symbol":"btc/usd"}'},
+    {topic:'crypto_prices_twap_sixty',type:'*',filters:'{"symbol":"btc/usd"}'}
+  ]}))}catch(e){}};
   w.onopen=()=>{clLast=Date.now();sub();w._p=setInterval(()=>{if(w.readyState===1)try{w.send('PING')}catch(e){}},5000)};
   w.onmessage=m=>{if(ws!==w)return;clLast=Date.now();let j;try{j=JSON.parse(m.data)}catch(e){return}const p=j&&j.payload;if(!p)return;
-    if(Array.isArray(p.data))p.data.forEach(x=>addTick(+x.timestamp,+x.value));else if(p.symbol==='btc/usd'&&p.value!=null)addTick(+p.timestamp,+p.value);clBack=1000;render()};
+    const topic=j.topic||'', isTwap=topic==='crypto_prices_twap_sixty';
+    const ingest=(ts,val)=>{if(isTwap)addTwap60(ts,val); else addTick(ts,val)};
+    if(Array.isArray(p.data))p.data.forEach(x=>ingest(+x.timestamp,+x.value));
+    else if(p.symbol==='btc/usd'&&p.value!=null)ingest(+p.timestamp,+p.value);
+    clBack=1000;render()};
   w.onclose=()=>{if(ws!==w)return;clearInterval(w._p);ws=null;clOk=false;clSchedule()};w.onerror=()=>{try{w.close()}catch(e){}}}
 // vigilante: iOS Safari mata el socket al bloquear/cambiar de app sin avisar
 setInterval(()=>{if(!ws||(ws.readyState===1&&Date.now()-clLast>12000)||(ws.readyState===0&&Date.now()-clLast>15000)){clLast=Date.now();connectCL()}},4000);
@@ -201,12 +211,25 @@ function beTxt(acc,n,what){if(acc==null)return `${what}: sin señales aún. Equi
   const d=acc-BE;return `${what}: ${acc.toFixed(1)}% en ${n} señales vs equilibrio ~${BE}% → ${d>0?'<b class="up">+'+d.toFixed(1)+' pts por encima</b>':'<b class="dn">'+d.toFixed(1)+' pts por debajo (perderías dinero)</b>'}${n<300?' · muestra pequeña (&lt;300), no es concluyente':''}.`}
 // ---- Polymarket gamma-api (CORS abierto): cuotas en vivo y resultado oficial de ventanas cerradas ----
 let pmOdds=null,pmMeta=null;
-// metadatos de la ventana actual (token ids + priceToBeat oficial si gamma ya lo publicó)
+const PM_VAR={'5m':'fiveminute','15m':'fifteen'};
+function pmIso(sec){return new Date(sec*1000).toISOString().replace(/\.\d{3}Z$/,'Z')}
+async function pmGammaMeta(slug){try{const a=await tfetch('https://gamma-api.polymarket.com/events?slug='+slug,7000);const e=a&&a[0];if(!e)return {};return e.eventMetadata||(e.markets&&e.markets[0]&&e.markets[0].eventMetadata)||{}}catch(e){return {}}}
+// Mismo endpoint que usa la app Phantom/Polymarket para el objetivo en vivo (TWAP 60 s).
+async function pmCryptoOpen(tOpen,myIv){try{const t0=Math.floor(tOpen/1000),t1=t0+MS[myIv]/1000;
+  const j=await tfetch(`https://polymarket.com/api/crypto/crypto-price?symbol=BTC&eventStartTime=${pmIso(t0)}&variant=${PM_VAR[myIv]}&endDate=${pmIso(t1)}&twapEnabled=true&twapLookbackSeconds=60`,3000);
+  const v=+j.openPrice;return (isFinite(v)&&v>0)?v:null}catch(e){return null}}
+// metadatos de la ventana actual + objetivo oficial (TWAP 60 s)
 async function pmMetaGet(myIv,tOpen){if(pmMeta&&pmMeta.t===tOpen&&pmMeta.iv===myIv&&(pmMeta.ptb!=null||Date.now()-pmMeta.at<20000))return pmMeta;
   const e=await pmEvent(tOpen,myIv);const m=e&&e.markets&&e.markets[0];if(!m)return pmMeta=null;
-  const o=JSON.parse(m.outcomes||'[]'),tk=JSON.parse(m.clobTokenIds||'[]'),em=e.eventMetadata||m.eventMetadata||{};let ptb=+em.priceToBeat;
-  if(!isFinite(ptb)||!ptb){const mm=String(m.description||'').match(/price to beat[^$\d]*\$?([\d,]+\.\d+)/i);ptb=mm?+mm[1].replace(/,/g,''):null}
-  return pmMeta={t:tOpen,iv:myIv,at:Date.now(),slug:e.slug,up:tk[o.indexOf('Up')],down:tk[o.indexOf('Down')],ptb:ptb||null,gUp:+JSON.parse(m.outcomePrices||'[]')[o.indexOf('Up')]}}
+  const o=JSON.parse(m.outcomes||'[]'),tk=JSON.parse(m.clobTokenIds||'[]'),em=e.eventMetadata||m.eventMetadata||{};let ptb=+em.priceToBeat,ptbSrc=null;
+  if(isFinite(ptb)&&ptb)ptbSrc='gamma';
+  if(!ptbSrc){const mm=String(m.description||'').match(/price to beat[^$\d]*\$?([\d,]+\.\d+)/i);if(mm){ptb=+mm[1].replace(/,/g,'');if(isFinite(ptb)&&ptb)ptbSrc='desc'}}
+  // 5m con el mismo inicio: gamma suele publicar priceToBeat ahí antes que en el 15m (misma TWAP 60 s).
+  if(!ptbSrc){const em5=await pmGammaMeta('btc-updown-5m-'+Math.floor(tOpen/1000));const v=+em5.priceToBeat;if(isFinite(v)&&v){ptb=v;ptbSrc='gamma-5m'}}
+  // finalPrice del 5m anterior = openPrice TWAP 60 s de esta ventana (cadena oficial).
+  if(!ptbSrc){const emP=await pmGammaMeta('btc-updown-5m-'+(Math.floor(tOpen/1000)-300));const v=+emP.finalPrice;if(isFinite(v)&&v){ptb=v;ptbSrc='gamma-prev-final'}}
+  if(!ptbSrc){const v=await pmCryptoOpen(tOpen,myIv);if(v){ptb=v;ptbSrc='crypto-price-twap60'}}
+  return pmMeta={t:tOpen,iv:myIv,at:Date.now(),slug:e.slug,up:tk[o.indexOf('Up')],down:tk[o.indexOf('Down')],ptb:ptbSrc?ptb:null,ptbSrc,gUp:+JSON.parse(m.outcomePrices||'[]')[o.indexOf('Up')]}}
 // cuotas EN VIVO del libro CLOB (midpoint; si no, último trade)
 async function clobPx(tok){try{const j=await tfetch('https://clob.polymarket.com/midpoint?token_id='+tok,5000);const v=+j.mid;if(v>0&&v<1)return v}catch(e){}
   try{const j=await tfetch('https://clob.polymarket.com/last-trade-price?token_id='+tok,5000);const v=+j.price;if(v>0&&v<1)return v}catch(e){}return null}
@@ -269,16 +292,16 @@ function render(){
     const tw=twLoad(),clOpen=tw[cur.t],clNow=ticks.length?SR.twap(ticks,ticks[ticks.length-1].t):null;
     const exOpen=cur.open?cur.open.o:null,exNow=cur.open?cur.open.c:null;
     let o,n,os,ns;
-    const clSpot=ticks.length?ticks[ticks.length-1].v:null,ptb=pmMeta&&pmMeta.t===cur.t?pmMeta.ptb:null,cx=cxLoad()[cur.t];let tgK;
-    n=clSpot!=null?clSpot:exNow;ns=clSpot!=null?'Chainlink ahora':src+' ahora (Chainlink sin conexión)';
-    if(ptb!=null){o=ptb;os='✅ Objetivo oficial Polymarket (priceToBeat)';tgK='oficial Polymarket'}
-    else if(cx!=null){o=cx;os='Chainlink exacto en la apertura (capturado aquí, = objetivo del mercado ±$1)';tgK='Chainlink capturado en la apertura'}
-    else if(clOpen!=null){o=clOpen;os='Chainlink TWAP 60 s en la apertura (aprox.)';tgK='Chainlink TWAP 60 s'}
-    else if(clSpot!=null&&exOpen!=null&&exNow!=null){o=clSpot-(exNow-exOpen);os='≈ Estimado: Chainlink ahora − lo que se movió '+src+' desde la apertura (abriste tarde; error típico ±$10-20)';tgK='estimado Chainlink − movimiento'}
-    else{o=exOpen;os='⚠ '+src+' apertura: ¡OJO! va ≈$100 arriba de Chainlink, NO es el objetivo del mercado';tgK='⚠ exchange (≈$100 de diferencia)'}
+    const clSpot=ticks.length?ticks[ticks.length-1].v:null,ptb=pmMeta&&pmMeta.t===cur.t?pmMeta.ptb:null,ptbSrc=pmMeta&&pmMeta.t===cur.t?pmMeta.ptbSrc:null,cx=cxLoad()[cur.t];let tgK,oficial=false;
+    n=clSpot!=null?clSpot:exNow;ns=clSpot!=null?'Chainlink spot ahora':src+' ahora (Chainlink sin conexión)';
+    if(ptb!=null){o=ptb;oficial=true;os='✅ Objetivo oficial (Chainlink TWAP 60 s · '+ptbSrc+')';tgK='oficial TWAP 60 s ('+ptbSrc+')'}
+    else if(cx!=null){o=cx;oficial=true;os='✅ Objetivo oficial: TWAP 60 s capturado en la apertura (feed crypto_prices_twap_sixty)';tgK='oficial TWAP 60 s capturado'}
+    else if(clOpen!=null){o=clOpen;os='⚠ NO oficial: TWAP 60 s aproximado local (puede diferir varios $ de la app)';tgK='⚠ TWAP local no oficial'}
+    else if(clSpot!=null&&exOpen!=null&&exNow!=null){o=clSpot-(exNow-exOpen);os='⚠ NO oficial: estimado spot ahora − movimiento '+src+' (abriste tarde; no uses para apostar)';tgK='⚠ estimado no oficial'}
+    else{o=exOpen;os='⚠ NO oficial: apertura '+src+' (va ≈$100 arriba de Chainlink; NO es el objetivo de la app)';tgK='⚠ exchange no oficial'}
     $('op').textContent=fmt(o);$('opsrc').textContent=os;$('px').textContent=fmt(n);
     if(o!=null&&n!=null){const df=n-o;$('diff').innerHTML=`<b class="${df>=0?'up':'dn'}" style="display:inline;font-size:13px">${df>=0?'+':''}${df.toFixed(2)}</b> vs objetivo · ${ns}`}else $('diff').textContent='—';
-    $('src').innerHTML=(pmOdds&&pmOdds.t===cur.t&&isFinite(pmOdds.up)?`<b>Polymarket ahora: Up ${(100*pmOdds.up).toFixed(1)}% · Down ${(100*pmOdds.down).toFixed(1)}%</b> (${pmOdds.slug}, libro CLOB en vivo, ${new Date(pmOdds.at).toLocaleTimeString('es-MX')})<br>`:'')+`Velas/indicadores: ${src}. Objetivo: ${tgK}. ${clOk?'🟢 Chainlink conectado':'⚪ Chainlink sin conexión'}. Verifica el objetivo exacto en la app.`}
+    $('src').innerHTML=(pmOdds&&pmOdds.t===cur.t&&isFinite(pmOdds.up)?`<b>Polymarket ahora: Up ${(100*pmOdds.up).toFixed(1)}% · Down ${(100*pmOdds.down).toFixed(1)}%</b> (${pmOdds.slug}, libro CLOB en vivo, ${new Date(pmOdds.at).toLocaleTimeString('es-MX')})<br>`:'')+(oficial?'':'<b class="am">⚠ Objetivo no oficial — verifica el price to beat en Phantom/Polymarket antes de apostar.</b><br>')+`Velas/indicadores: ${src}. Objetivo: ${tgK}. ${clOk?'🟢 Chainlink conectado':'⚪ Chainlink sin conexión'}.`}
   const ps=load(),g=ps.filter(p=>counts(p)),h=g.filter(p=>p.res==='hit').length,m=g.filter(p=>p.res==='miss').length,w=ps.filter(p=>!counts(p)).length;
   $('hits').textContent=h;$('miss').textContent=m;$('waits').textContent=w;const acc=h+m?100*h/(h+m):null,iacc=h+m?100*m/(h+m):null;$('acc').textContent=acc==null?'—':acc.toFixed(1)+'%';
   $('ihits').textContent=m;$('imiss').textContent=h;$('iacc').textContent=iacc==null?'—':iacc.toFixed(1)+'%';
@@ -373,11 +396,13 @@ async function c30(){let k=null,src='';
  const V=C.slice(-40),mx=Math.max(...V.map(x=>x.h),hi),mn=Math.min(...V.map(x=>x.l),lo),Y=p=>4+(mx-p)/(mx-mn||1)*102,w=300/V.length;
  let s=`<line x1="0" x2="300" y1="${Y(hi)}" y2="${Y(hi)}" stroke="#8a93a0" stroke-dasharray="3"/><line x1="0" x2="300" y1="${Y(lo)}" y2="${Y(lo)}" stroke="#8a93a0" stroke-dasharray="3"/>`;
  V.forEach((x,i)=>{const col=x.c>=x.o?'#2ecc71':'#e74c3c',cx=i*w+w/2;s+=`<line x1="${cx}" x2="${cx}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}"/><rect x="${i*w+1}" width="${Math.max(1,w-2)}" y="${Math.min(Y(x.o),Y(x.c))}" height="${Math.max(1,Math.abs(Y(x.o)-Y(x.c)))}" fill="${col}"/>`});$('c30').innerHTML=s}
-// ---- última apertura cerrada 15m (Chainlink guardado por la página → priceToBeat oficial → exchange) ----
-async function lastW(){const G=900000,now=Date.now(),t0=Math.floor(now/G)*G-G,t1=t0+G;let o=null,c=null,how='Chainlink';
- const rd=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}},X=rd('senales4_clexact'),T=rd('senales3_cltwap');o=X[t0]??T[t0]??null;c=X[t1]??T[t1]??null;
- if(o==null||c==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-15m-${t0/1000}`),m=a&&a[0]&&a[0].markets&&a[0].markets[0],md=m&&(m.eventMetadata||a[0].eventMetadata);if(md){if(o==null&&md.priceToBeat)o=+md.priceToBeat;if(c==null&&md.finalPrice)c=+md.finalPrice}}catch(e){}}
- if(o==null||c==null){try{const j=await jf(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&startTime=${t0}&limit=1`);o=o??+j[0][1];c=c??+j[0][4];how='Binance (no Chainlink)'}catch(e){}}
+// ---- última apertura cerrada 15m (oficial TWAP 60 s → captura local → exchange) ----
+async function lastW(){const G=900000,now=Date.now(),t0=Math.floor(now/G)*G-G,t1=t0+G;let o=null,c=null,how='';
+ try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-15m-${t0/1000}`),md=a&&a[0]&&a[0].eventMetadata;if(md){if(md.priceToBeat)o=+md.priceToBeat;if(md.finalPrice)c=+md.finalPrice;if(o!=null||c!=null)how='oficial Polymarket'}}catch(e){}
+ if(o==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-5m-${t0/1000}`),md=a&&a[0]&&a[0].eventMetadata;if(md&&md.priceToBeat){o=+md.priceToBeat;how=how||'oficial (5m)'}}catch(e){}}
+ if(c==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-5m-${t1/1000-300}`),md=a&&a[0]&&a[0].eventMetadata;if(md&&md.finalPrice){c=+md.finalPrice;how=how||'oficial (5m final)'}}catch(e){}}
+ const rd=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}},X=rd('senales5_cltwap60'),T=rd('senales3_cltwap');o=o??X[t0]??T[t0]??null;c=c??X[t1]??T[t1]??null;if(o!=null&&c!=null&&!how)how='TWAP 60 s capturado';
+ if(o==null||c==null){try{const j=await jf(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&startTime=${t0}&limit=1`);o=o??+j[0][1];c=c??+j[0][4];how='⚠ Binance (no oficial)'}catch(e){}}
  if(o==null||c==null){$('lastW').textContent='—';return}const up=c>=o,p=(c-o)/o*100,hh=new Date(t0).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
  $('lastW').innerHTML=`<span class="${up?'up':'dn'}">${up?'UP ▲':'DOWN ▼'} ${p>=0?'+':''}${p.toFixed(3)}%</span><br><span class="mut" style="font-size:11px">${hh} · abrió ${px(o)} → cerró ${px(c)} · ${how}</span>`}
 $('whTh').textContent=(WH/1000)+'k';loopF();c30();lastW();setInterval(loopF,5000);setInterval(()=>{if(document.visibilityState!=='hidden')c30()},10000);setInterval(lastW,30000);
