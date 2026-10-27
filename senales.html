@@ -8,7 +8,8 @@
 .be{padding:8px 10px;border-radius:8px;background:var(--panel2);font-size:13px;margin-top:8px}.rule300{border:1px solid #f5b942;color:#f5b942;padding:8px 10px;border-radius:8px;font-weight:700;font-size:14px;text-align:center}
 .trow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0;font:12px var(--mono)}.trow div{background:var(--panel2);border-radius:8px;padding:6px;text-align:center}.trow b{display:block;font-size:14px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two>div{background:var(--panel2);border-radius:8px;padding:8px}.two h4{margin:0 0 6px;font-size:13px}.kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font:13px var(--mono)}.kv span:nth-child(odd){color:var(--mut,#8a93a0)}
-@media(max-width:520px){.two{grid-template-columns:1fr}}
+@media(max-width:520px){.two{grid-template-columns:1fr}.tg{grid-template-columns:1fr}.tg b{font-size:15px}.kv{font-size:12px}}
+#src,#why,#probm,#opsrc,#diff,.kv span,.kv b{overflow-wrap:anywhere;word-break:break-word}.kv b{text-align:right}
 .up{color:var(--green)}.dn{color:var(--red)}.am{color:#f5b942}</style></head><body>
 <header class="hs"><div class="logo">P</div><b>PULSE Señales · BTC</b>
 <nav><a href="./index.html">Dashboard</a><a href="./terminal.html">Terminal</a><a href="./senales.html" class="on">Señales</a></nav><div class="sp"></div>
@@ -24,6 +25,7 @@
    <div><span class="mut">Precio actual · diferencia</span><b id="px">—</b><span id="diff" class="mut">—</span></div>
   </div>
   <div class="mut small" id="src">—</div>
+  <div class="be" id="probm" style="font-size:12px">Prob. modelo vs precio mercado: cargando…</div>
   <div class="votes" id="votes"></div>
   <div class="mut small">Tendencia mayor (velas cerradas, precio vs EMA50 y EMA20 vs EMA50):</div>
   <div class="trow" id="trend"><div><span class="mut">15m</span><b>—</b></div><div><span class="mut">1h</span><b>—</b></div><div><span class="mut">4h</span><b>—</b></div></div>
@@ -130,7 +132,7 @@ if(typeof document!=='undefined')(function(){
 const $=id=>document.getElementById(id);
 const MS={'5m':300000,'15m':900000},CB={'5m':300,'15m':900},BE=53;
 let iv=localStorage.getItem('senales_iv');if(!MS[iv])iv='5m';
-let cur=null,loading=false,src='',lastPx=null;
+let cur=null,loading=false,src='',lastPx=null,lastTickRef=0,m1=null,m1At=0;
 const K=()=>'senales4_preds_'+iv;
 const load=()=>{try{return JSON.parse(localStorage.getItem(K()))||[]}catch(e){return []}};
 const save=a=>localStorage.setItem(K(),JSON.stringify(a.slice(-1000)));
@@ -245,8 +247,9 @@ async function pmUpdate(myIv,tOpen,preds){
   for(const p of pend){try{const e=await pmEvent(p.t,myIv);const m=e&&e.markets&&e.markets[0];if(!m||!m.closed)continue;const pr=JSON.parse(m.outcomePrices||'[]'),o=JSON.parse(m.outcomes||'[]');
     const up=+pr[o.indexOf('Up')];if(up!==0&&up!==1)continue;store[myIv+p.t]={res:up===1?'UP':'DOWN',ptb:e.eventMetadata&&e.eventMetadata.priceToBeat};}catch(e){}}
   const ks=Object.keys(store);if(ks.length>3000)ks.slice(0,ks.length-3000).forEach(k=>delete store[k]);localStorage.setItem(PMK,JSON.stringify(store));return store}
+let refGen=0;
 async function refresh(){
-  if(loading)return;loading=true;const myIv=iv;
+  if(loading)return;loading=true;const myIv=iv,gen=++refGen;
   try{
     const all=await fetchCandles();if(myIv!==iv)return;const now=Date.now();
     const closed=all.filter(c=>c.T<now),open=all.find(c=>c.T>=now);
@@ -262,7 +265,7 @@ async function refresh(){
     let lock=preds.find(p=>p.t===tOpen);
     const base=closed.filter(c=>c.t<tOpen);const live=SR.predict(base.slice(-400),{htf,t:tOpen,P});
     if(!lock&&live){const pr=live,side=pmOdds&&pmOdds.t===tOpen?(pr.dir==='UP'?pmOdds.up:pr.dir==='DOWN'?pmOdds.down:null):null;
-      lock={t:tOpen,dir:pr.dir,raw:pr.raw,why:pr.why,score:pr.score,rsi:pr.rsi,taker:pr.taker,flow:pr.flow,votes:pr.votes,htf:Object.fromEntries(Object.entries(pr.htf).map(([k,v])=>[k,v&&v.label])),htfSum:pr.htfSum,odds:isFinite(side)?side:null,noValue:isFinite(side)&&side>SR.ODDS_MAX,late:now-tOpen>20000,res:null};preds.push(lock);notify(lock)}
+      lock={t:tOpen,dir:pr.dir,raw:pr.raw,why:pr.why,score:pr.score,rsi:pr.rsi,taker:pr.taker,flow:pr.flow,votes:pr.votes,htf:Object.fromEntries(Object.entries(pr.htf).map(([k,v])=>[k,v&&v.label])),htfSum:pr.htfSum,odds:Number.isFinite(side)?side:null,noValue:Number.isFinite(side)&&side>SR.ODDS_MAX,late:now-tOpen>20000,res:null};preds.push(lock);notify(lock)}
     save(preds);
     cur={t:tOpen,T:tOpen+MS[iv]-1,lock,open,live,fl6:SR.flow(base,6),fl20:SR.flow(base,20)};
     const cut=Math.floor(closed.length*0.6),oos=SR.backtest(closed,{htf,P,from:cut}),bt=SR.backtest(closed,{htf,P});
@@ -272,7 +275,7 @@ async function refresh(){
     $('status').style.display='none';$('upd').textContent='Act. '+new Date().toLocaleTimeString('es-MX');
     render();
   }catch(e){console.error(e);$('upd').textContent='Error de datos';if(!cur){const d=$('dir');d.textContent='Sin datos';d.className='dir gray err';}$('status').textContent='⚠ No se pudieron cargar velas ('+(e&&e.message||e)+'). Reintento en 30 s.';$('status').style.display='block'}
-  finally{loading=false}
+  finally{if(gen===refGen)loading=false}
 }
 function render(){
   document.querySelectorAll('.ivsel button').forEach(b=>b.classList.toggle('on',b.dataset.iv===iv));$('ivl').textContent=iv;
@@ -281,10 +284,10 @@ function render(){
     const v=L.votes,s=x=>x>0?'+1':x<0?'−1':'0';
     $('votes').innerHTML=`<span>EMA9/21 ${s(v.ema)}</span><span>RSI ${L.rsi==null?'—':L.rsi.toFixed(1)} ${s(v.rsi)}</span><span>Taker ${L.taker==null?'—':L.taker.toFixed(2)} ${s(v.taker)}</span>`+(SR.DEF[iv].flowN?`<span>Flujo 6v ${L.flow==null?'—':L.flow.toFixed(3)} ${s(v.flow||0)}</span>`:'')+`<span>Total ${L.score>0?'+':''}${L.score} (necesita ±${SR.DEF[iv].minScore})</span>`;
     const th=L.htf||{};$('trend').innerHTML=['15m','1h','4h'].map(k=>{const x=th[k];return `<div><span class="mut">${k}</span><b class="${x==='alcista'?'up':x==='bajista'?'dn':'am'}">${x||'—'}</b></div>`}).join('');
-    const sideNow=pmOdds&&pmOdds.t===cur.t?(L.dir==='UP'?pmOdds.up:L.dir==='DOWN'?pmOdds.down:null):null;
+    const sideNow=pmOdds&&pmOdds.t===cur.t&&Date.now()-pmOdds.at<30000?(L.dir==='UP'?pmOdds.up:L.dir==='DOWN'?pmOdds.down:null):null;
     let w=L.dir==='WAIT'?(L.raw&&L.raw!=='WAIT'?`Candidato ${lbl(L.raw)} bloqueado: <b class="am">${L.why}</b>.`:'Puntaje insuficiente → ESPERA.'):`Pasa los filtros (tendencia mayor ${L.htfSum>0?'+':''}${L.htfSum}, niveles OK).`;
     if(L.noValue)w+=` <b class="am">SIN VALOR</b>: Polymarket cobraba ${(100*L.odds).toFixed(0)}¢ por este lado al abrir (&gt;60¢) → cuenta como ESPERA, no apostar.`;
-    else if(isFinite(sideNow)&&sideNow>SR.ODDS_MAX)w+=` <b class="am">SIN VALOR ahora</b>: el mercado ya cobra ${(100*sideNow).toFixed(0)}¢ por este lado (&gt;60¢); no entres a este precio.`;
+    else if(Number.isFinite(sideNow)&&sideNow>SR.ODDS_MAX)w+=` <b class="am">SIN VALOR ahora</b>: el mercado ya cobra ${(100*sideNow).toFixed(0)}¢ por este lado (&gt;60¢); no entres a este precio.`;
     else if(L.odds!=null)w+=` Cuota al abrir: ${(100*L.odds).toFixed(0)}¢.`;
     $('why').innerHTML=w;
     if(L.noValue){d.textContent='SIN VALOR ('+lbl(L.dir).split(' ')[0]+')';d.className='dir WAIT'}
@@ -299,9 +302,9 @@ function render(){
     else if(clOpen!=null){o=clOpen;os='⚠ NO oficial: TWAP 60 s aproximado local (puede diferir varios $ de la app)';tgK='⚠ TWAP local no oficial'}
     else if(clSpot!=null&&exOpen!=null&&exNow!=null){o=clSpot-(exNow-exOpen);os='⚠ NO oficial: estimado spot ahora − movimiento '+src+' (abriste tarde; no uses para apostar)';tgK='⚠ estimado no oficial'}
     else{o=exOpen;os='⚠ NO oficial: apertura '+src+' (va ≈$100 arriba de Chainlink; NO es el objetivo de la app)';tgK='⚠ exchange no oficial'}
-    $('op').textContent=fmt(o);$('opsrc').textContent=os;$('px').textContent=fmt(n);
+    $('op').textContent=fmt(o);renderProb(o,n);$('opsrc').textContent=os;$('px').textContent=fmt(n);
     if(o!=null&&n!=null){const df=n-o;$('diff').innerHTML=`<b class="${df>=0?'up':'dn'}" style="display:inline;font-size:13px">${df>=0?'+':''}${df.toFixed(2)}</b> vs objetivo · ${ns}`}else $('diff').textContent='—';
-    $('src').innerHTML=(pmOdds&&pmOdds.t===cur.t&&isFinite(pmOdds.up)?`<b>Polymarket ahora: Up ${(100*pmOdds.up).toFixed(1)}% · Down ${(100*pmOdds.down).toFixed(1)}%</b> (${pmOdds.slug}, libro CLOB en vivo, ${new Date(pmOdds.at).toLocaleTimeString('es-MX')})<br>`:'')+(oficial?'':'<b class="am">⚠ Objetivo no oficial — verifica el price to beat en Phantom/Polymarket antes de apostar.</b><br>')+`Velas/indicadores: ${src}. Objetivo: ${tgK}. ${clOk?'🟢 Chainlink conectado':'⚪ Chainlink sin conexión'}.`}
+    $('src').innerHTML=(pmOdds&&pmOdds.t===cur.t&&Number.isFinite(pmOdds.up)?`<b>Polymarket ahora: Up ${(100*pmOdds.up).toFixed(1)}% · Down ${(100*pmOdds.down).toFixed(1)}%</b> (${pmOdds.slug}, libro CLOB en vivo, ${new Date(pmOdds.at).toLocaleTimeString('es-MX')})<br>`:'')+(oficial?'':'<b class="am">⚠ Objetivo no oficial — verifica el price to beat en Phantom/Polymarket antes de apostar.</b><br>')+`Velas/indicadores: ${src}. Objetivo: ${tgK}. ${clOk?'🟢 Chainlink conectado':'⚪ Chainlink sin conexión'}.`}
   const ps=load(),g=ps.filter(p=>counts(p)),h=g.filter(p=>p.res==='hit').length,m=g.filter(p=>p.res==='miss').length,w=ps.filter(p=>!counts(p)).length;
   $('hits').textContent=h;$('miss').textContent=m;$('waits').textContent=w;const acc=h+m?100*h/(h+m):null,iacc=h+m?100*m/(h+m):null;$('acc').textContent=acc==null?'—':acc.toFixed(1)+'%';
   $('ihits').textContent=m;$('imiss').textContent=h;$('iacc').textContent=iacc==null?'—':iacc.toFixed(1)+'%';
@@ -309,6 +312,15 @@ function render(){
   renderMoney();
   $('hist').innerHTML=g.filter(p=>p.res==='hit'||p.res==='miss').slice(-60).map(p=>`<i class="${p.res[0]}" title="${new Date(p.t).toLocaleString('es-MX')} ${lbl(p.dir)} (${p.how==='PM'?'Polymarket oficial':p.how==='CL'?'Chainlink':'exchange'})"></i>`).join('');
 }
+// ---- Prob. modelo (distancia/volatilidad) vs precio mercado: SOLO INFORMATIVO ----
+// Backtest 27-oct-2026 (2,996 mercados 15m, alineado en tiempo, fuera de muestra): comprar cuando modelo > precio+comisión PERDIÓ −5% a −15% por $1.
+async function fetchM1(){if(Date.now()-m1At<20000)return;try{const a=await tfetch('https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=61',6000);m1=a.map(x=>+x[4]);m1At=Date.now()}catch(e){m1=null}}
+function Phi(x){const t=1/(1+0.2316419*Math.abs(x)),d=0.3989423*Math.exp(-x*x/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p}
+function renderProb(o,n){const el=$('probm');if(!el)return;if(!cur||o==null||n==null||!m1||m1.length<30){el.innerHTML='Prob. modelo vs precio mercado: sin datos suficientes.';return}
+  const r=[];for(let i=1;i<m1.length;i++)r.push(Math.log(m1[i]/m1[i-1]));const mu=r.reduce((a,b)=>a+b,0)/r.length,sg=Math.sqrt(r.reduce((a,b)=>a+(b-mu)**2,0)/(r.length-1));
+  const minLeft=Math.max(0.05,(cur.T+1-Date.now())/60000),z=Math.log(n/o)/(sg*Math.sqrt(minLeft)+1e-12),pu=Phi(z);
+  const mk=pmOdds&&pmOdds.t===cur.t&&Date.now()-pmOdds.at<30000?pmOdds.up:null;
+  el.innerHTML=`<b>Prob. modelo vs precio mercado</b> (solo informativo): modelo Up <b>${(100*pu).toFixed(0)}%</b> · mercado Up <b>${mk==null?'—':(100*mk).toFixed(0)+'%'}</b> · distancia ${(n-o>=0?'+':'')+(n-o).toFixed(0)}$ = ${z.toFixed(2)}σ con ${minLeft.toFixed(1)} min restantes.<br><span class="am">⚠ Sin ventaja probada: en backtest fuera de muestra (1,199 mercados) comprar cuando el modelo supera al precio + comisión perdió −5% a −15% por $1. El mercado ya descuenta esta información. No apostar con esto.</span>`}
 function renderMoney(){const m=money,L=cur&&cur.live,f=x=>x==null?'—':x.toFixed(3);let h='';
   if(cur&&cur.live){const lv=cur.live;
     h+=`<span>Taker última vela (compra/total)</span><b class="${lv.taker>0.52?'up':lv.taker<0.48?'dn':''}">${f(lv.taker)}</b>`;
@@ -323,7 +335,7 @@ function renderMoney(){const m=money,L=cur&&cur.live,f=x=>x==null?'—':x.toFixe
     $('lvls').innerHTML=`<span>Último cierre</span><b>${fmt(v.p)}</b><span>Resistencia más cercana</span><b class="dn">${dd(v.res)}</b><span>Soporte más cercano</span><b class="up">${dd(v.sup)}</b><span>Máx 24 h</span><b>${dd(v.hi24)}</b><span>Mín 24 h</span><b>${dd(v.lo24)}</b><span>ATR14</span><b>${a==null?'—':a.toFixed(1)}</b>`}}
 function tick(){
   if(!cur||!cur.t)return;const left=cur.T+1-Date.now();
-  if(left<=-2000){refresh();return}
+  if(left<=-2000){if(!loading&&Date.now()-lastTickRef>8000){lastTickRef=Date.now();refresh()}$('cd').textContent='00:00';return}
   const s=Math.max(0,Math.ceil(left/1000));$('cd').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 }
 let actx=null;
@@ -342,9 +354,9 @@ $('notif').onclick=async()=>{
   notifBtn();
 };
 $('reset').onclick=()=>{if(confirm('¿Borrar el marcador de '+iv+'?')){localStorage.removeItem(K());cur=null;refresh()}};
-document.querySelectorAll('.ivsel button').forEach(b=>b.onclick=()=>{iv=b.dataset.iv;localStorage.setItem('senales_iv',iv);cur=null;$('dir').textContent='Cargando…';$('dir').className='dir gray';$('votes').innerHTML='';render();loading=false;refresh()});
+document.querySelectorAll('.ivsel button').forEach(b=>b.onclick=()=>{iv=b.dataset.iv;localStorage.setItem('senales_iv',iv);cur=null;$('dir').textContent='Cargando…';$('dir').className='dir gray';$('votes').innerHTML='';render();loading=false;pmOdds=null;refresh()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=2',{updateViaCache:'none'}).catch(()=>{});
-notifBtn();render();connectCL();refresh();fetchMoney();setInterval(tick,1000);setInterval(refresh,30000);setInterval(fetchMoney,30000);setInterval(render,2000);
+notifBtn();render();connectCL();refresh();fetchMoney();fetchM1();setInterval(fetchM1,20000);setInterval(tick,1000);setInterval(refresh,30000);setInterval(fetchMoney,30000);setInterval(render,2000);
 setInterval(async()=>{if(!cur||!cur.t||document.visibilityState==='hidden')return;await pmLive(iv,cur.t);render()},5000);
 })();
 
@@ -379,7 +391,7 @@ function drawF(){
  else{$('fzTr').innerHTML='<span>Sin trades</span><span></span>';$('whale').textContent='—'}
  const s=$('fzState');if(!bk||!tr){s.textContent='Datos incompletos';s.style.color=s.style.borderColor='#8a93a0';return}
  let t='ESPERA · sin ventaja clara',c='#f5b942';
- if(bk.buy>.6&&tr.buy>.6){t='Posible UP ▲ (libro y ejecución compran)';c='var(--green)'}else if(bk.buy<.4&&tr.buy<.4){t='Posible DOWN ▼ (libro y ejecución venden)';c='var(--red)'}
+ if(bk.buy>.6&&tr.buy>.6){t='Posible UP ▲ (libro y ejecución compran · sin ventaja probada)';c='var(--green)'}else if(bk.buy<.4&&tr.buy<.4){t='Posible DOWN ▼ (libro y ejecución venden · sin ventaja probada)';c='var(--red)'}
  s.textContent=t;s.style.color=s.style.borderColor=c}
 async function loopF(){if(document.visibilityState!=='hidden'){await Promise.all([book(),trades()]);drawF()}}
 // ---- velas 30 s (de trades Coinbase, respaldo Binance 1s agregadas) ----
@@ -402,7 +414,7 @@ async function lastW(){const G=900000,now=Date.now(),t0=Math.floor(now/G)*G-G,t1
  if(o==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-5m-${t0/1000}`),md=a&&a[0]&&a[0].eventMetadata;if(md&&md.priceToBeat){o=+md.priceToBeat;how=how||'oficial (5m)'}}catch(e){}}
  if(c==null){try{const a=await jf(`https://gamma-api.polymarket.com/events?slug=btc-updown-5m-${t1/1000-300}`),md=a&&a[0]&&a[0].eventMetadata;if(md&&md.finalPrice){c=+md.finalPrice;how=how||'oficial (5m final)'}}catch(e){}}
  const rd=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}},X=rd('senales5_cltwap60'),T=rd('senales3_cltwap');o=o??X[t0]??T[t0]??null;c=c??X[t1]??T[t1]??null;if(o!=null&&c!=null&&!how)how='TWAP 60 s capturado';
- if(o==null||c==null){try{const j=await jf(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&startTime=${t0}&limit=1`);o=o??+j[0][1];c=c??+j[0][4];how='⚠ Binance (no oficial)'}catch(e){}}
+ if(o==null||c==null){try{const j=await jf(`https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&startTime=${t0}&limit=1`);const mix=o!=null||c!=null;o=o??+j[0][1];c=c??+j[0][4];how=mix?'⚠ mezcla oficial + Binance (no oficial)':'⚠ Binance (no oficial)'}catch(e){}}
  if(o==null||c==null){$('lastW').textContent='—';return}const up=c>=o,p=(c-o)/o*100,hh=new Date(t0).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
  $('lastW').innerHTML=`<span class="${up?'up':'dn'}">${up?'UP ▲':'DOWN ▼'} ${p>=0?'+':''}${p.toFixed(3)}%</span><br><span class="mut" style="font-size:11px">${hh} · abrió ${px(o)} → cerró ${px(c)} · ${how}</span>`}
 $('whTh').textContent=(WH/1000)+'k';loopF();c30();lastW();setInterval(loopF,5000);setInterval(()=>{if(document.visibilityState!=='hidden')c30()},10000);setInterval(lastW,30000);
