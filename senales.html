@@ -1,39 +1,38 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>PULSE · Señales BTC v4 (PAPER)</title><meta name="theme-color" content="#0b0d10">
+<title>PULSE · Señales BTC v4 (PAPER)</title><meta name="theme-color" content="#05070d"><meta name="color-scheme" content="dark">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Señales">
-<link rel="stylesheet" href="terminal.css?v=2"><link rel="stylesheet" href="senales.css?v=2">
-<style>.dir.WAIT{color:#f5b942;border-color:#f5b942;background:rgba(245,185,66,.12);font-size:34px}
-.tg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;font:12px var(--mono)}.tg div{background:var(--panel2);border-radius:8px;padding:6px}.tg b{display:block;font-size:16px}
-.be{padding:8px 10px;border-radius:8px;background:var(--panel2);font-size:13px;margin-top:8px}.rule300{border:1px solid #f5b942;color:#f5b942;padding:8px 10px;border-radius:8px;font-weight:700;font-size:14px;text-align:center}
-.trow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0;font:12px var(--mono)}.trow div{background:var(--panel2);border-radius:8px;padding:6px;text-align:center}.trow b{display:block;font-size:14px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two>div{background:var(--panel2);border-radius:8px;padding:8px}.two h4{margin:0 0 6px;font-size:13px}.kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font:13px var(--mono)}.kv span:nth-child(odd){color:var(--mut,#8a93a0)}
-@media(max-width:520px){.two{grid-template-columns:1fr}.tg{grid-template-columns:1fr}.tg b{font-size:15px}.kv{font-size:12px}}
-#src,#why,#probm,#opsrc,#diff,.kv span,.kv b{overflow-wrap:anywhere;word-break:break-word}.kv b{text-align:right}
-.up{color:var(--green)}.dn{color:var(--red)}.am{color:#f5b942}</style></head><body>
-<header class="hs"><div class="logo">P</div><b>PULSE Señales · BTC</b>
-<nav><a href="./index.html">Dashboard</a><a href="./terminal.html">Terminal</a><a href="./senales.html" class="on">Señales</a></nav><div class="sp"></div>
-<span class="mut" id="upd">—</span></header>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="senales.css?v=3">
+</head><body>
+<header class="hs"><a class="brand" href="./index.html" aria-label="PULSE"><span class="logo"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M2 17h6l3-8 5 15 4-11 2 4h8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="bt"><b>PULSE</b><small>Señales · BTC</small></span></a>
+<span class="sp"></span><span class="upd"><i class="live"></i><span class="mut" id="upd">—</span></span>
+<nav><a href="./index.html">Dashboard</a><a href="./terminal.html">Terminal</a><a href="./senales.html" class="on">Señales</a></nav></header>
 <main class="sw">
- <section class="panel big" id="big">
-  <div class="mut" id="tgt">Señal para la vela actual (fija desde la apertura)</div>
+ <div class="ivsel" role="group" aria-label="Intervalo"><button data-iv="5m">5m</button><button data-iv="15m">15m</button></div>
+ <section class="panel big hero" id="big">
+  <div class="hero-top"><span class="chip"><i class="live"></i>SEÑAL EN VIVO</span><span class="chip ghost">BTC · PAPER</span></div>
+  <div class="mut tgt" id="tgt">Señal para la vela actual (fija desde la apertura)</div>
   <div class="dirw"><span id="dir" class="dir gray">Cargando…</span></div>
   <div id="status" class="status" style="display:none"></div>
   <div class="cd"><span class="mut">Cierra en</span> <b id="cd">--:--</b></div>
+  <div class="cdbar" aria-hidden="true"><i id="cdfill"></i></div>
   <div class="tg">
    <div><span class="mut">Precio de apertura / objetivo</span><b id="op">—</b><span class="mut" id="opsrc">—</span></div>
    <div><span class="mut">Precio actual · diferencia</span><b id="px">—</b><span id="diff" class="mut">—</span></div>
   </div>
-  <div class="mut small" id="src">—</div>
-  <div class="be" id="probm" style="font-size:12px">Prob. modelo vs precio mercado: cargando…</div>
+  
+  <div class="be" id="probm">Prob. modelo vs precio mercado: cargando…</div>
+  <div class="be why" id="why">—</div>
+  <details class="fold"><summary>Cómo se formó la señal</summary><div class="foldbody">
   <div class="votes" id="votes"></div>
   <div class="mut small">Tendencia mayor (velas cerradas, precio vs EMA50 y EMA20 vs EMA50):</div>
   <div class="trow" id="trend"><div><span class="mut">15m</span><b>—</b></div><div><span class="mut">1h</span><b>—</b></div><div><span class="mut">4h</span><b>—</b></div></div>
-  <div class="be" id="why">—</div>
+  <div class="mut small" id="src">—</div></div></details>
   <button id="notif" type="button">🔔 Activar avisos + sonido</button>
  </section>
- <div class="ivsel" role="group" aria-label="Intervalo"><button data-iv="5m">5m</button><button data-iv="15m">15m</button></div>
- <div class="banner sm">⚠ Solo PAPER / educativo. No es consejo financiero. Sin dinero real. Predecir la siguiente vela de 5-15 min es prácticamente una moneda al aire; mira el backtest antes de creer nada.</div>
+ <div class="banner sm"><span class="bi">⚠</span><span>Solo PAPER / educativo. No es consejo financiero. Sin dinero real. Predecir la siguiente vela de 5-15 min es prácticamente una moneda al aire; mira el backtest antes de creer nada.</span></div>
  <div class="rule300">Prueba en papel al menos 300 velas; si no pasa de 55%, no apuestes.</div>
  <section class="panel"><h3>Marcador en vivo (este dispositivo · <span id="ivl">5m</span>)</h3>
   <div class="two"><div><h4>Normal (sigue la señal)</h4>
@@ -42,27 +41,28 @@
   <div><h4>Invertido (apuesta lo contrario)</h4>
   <div class="score"><div><b class="up" id="ihits">0</b><span>Aciertos</span></div><div><b class="dn" id="imiss">0</b><span>Fallos</span></div><div><b id="iacc">—</b><span>% Acierto</span></div></div>
   <div class="be" id="ibelive">—</div></div></div>
-  <p class="mut small"><b class="am" id="waits">0</b> ventanas en ESPERA / sin valor (no cuentan en ninguno de los dos). Modo invertido = mismo SUBE/BAJA pero al revés; también es solo PAPER. Prueba al menos 300 velas antes de sacar conclusiones.</p>
+  <p class="mut small waitp"><b class="am" id="waits">0</b> ventanas en ESPERA / sin valor (no cuentan en ninguno de los dos).</p>
+  <details class="fold"><summary>Notas del marcador</summary><div class="foldbody"><p class="mut small">Modo invertido = mismo SUBE/BAJA pero al revés; también es solo PAPER. Prueba al menos 300 velas antes de sacar conclusiones.</p></div></details>
   <div class="hist" id="hist"></div><button id="reset" type="button" class="link">Borrar marcador</button></section>
  <section class="panel" id="xtra"><h3>Fuerzas del mercado <span class="mut small">(informativo)</span></h3>
- <div id="fzState" class="rule300">Cargando…</div><p class="mut small" style="text-align:center;margin:4px 0">orientación, no probabilidad · no cambia la señal de arriba</p>
- <div class="two"><div><h4>Libro ±0.1% (<span id="fzBkSrc">—</span>)</h4><div class="fzbar"><i id="fzBkB"></i></div><div class="kv" id="fzBk"><span>—</span><span></span></div></div>
- <div><h4>Ejecutado últimos 60 s (<span id="fzTrSrc">—</span>)</h4><div class="fzbar"><i id="fzTrB"></i></div><div class="kv" id="fzTr"><span>—</span><span></span></div></div></div>
+ <div id="fzState" class="rule300">Cargando…</div><p class="mut small fznote">orientación, no probabilidad · no cambia la señal de arriba</p>
+ <div class="two"><div><h4>Libro ±0.1% (<span id="fzBkSrc">—</span>)</h4><div class="mlab"><span class="up">Compra</span><span class="dn">Venta</span></div><div class="fzbar"><i id="fzBkB"></i></div><div class="kv" id="fzBk"><span>—</span><span></span></div></div>
+ <div><h4>Ejecutado últimos 60 s (<span id="fzTrSrc">—</span>)</h4><div class="mlab"><span class="up">Compra</span><span class="dn">Venta</span></div><div class="fzbar"><i id="fzTrB"></i></div><div class="kv" id="fzTr"><span>—</span><span></span></div></div></div>
  <div class="tg"><div>🐋 Ballena (≥$<span id="whTh">250k</span> en 1 orden)<b id="whale">—</b></div><div>Última apertura cerrada (15m)<b id="lastW">—</b></div></div></section>
 <section class="panel"><h3>Velas de 30 s <span class="mut small" id="c30src"></span></h3>
- <svg id="c30" viewBox="0 0 300 110" preserveAspectRatio="none" style="width:100%;height:120px;background:var(--panel2);border-radius:8px"></svg>
+ <svg id="c30" viewBox="0 0 300 110" preserveAspectRatio="none"></svg>
  <div class="trow"><div>Techo 20<b id="c30hi">—</b></div><div>RSI14<b id="c30rsi">—</b></div><div>Piso 20<b id="c30lo">—</b></div></div>
  <div class="trow"><div>Vol. relativo<b id="c30rv">—</b></div><div style="grid-column:span 2">Ruptura<b id="c30brk">—</b></div></div></section>
 <section class="panel"><h3>Dónde entra el dinero</h3><div class="kv" id="money"><span>Cargando…</span><span></span></div>
-  <p class="mut small">Taker = quién cruza el spread (compras/ventas agresivas). Libro = suma de órdenes en los 20 mejores niveles de cada lado (cambia cada segundo, se puede falsear con órdenes que se retiran). Funding y open interest de futuros perpetuos. <b>El libro, funding y OI solo se muestran, no entran en la regla</b> (no hay historial gratis para probarlos en el backtest).</p></section>
+  <details class="fold"><summary>Cómo leer estos datos</summary><div class="foldbody"><p class="mut small">Taker = quién cruza el spread (compras/ventas agresivas). Libro = suma de órdenes en los 20 mejores niveles de cada lado (cambia cada segundo, se puede falsear con órdenes que se retiran). Funding y open interest de futuros perpetuos. <b>El libro, funding y OI solo se muestran, no entran en la regla</b> (no hay historial gratis para probarlos en el backtest).</p></div></details></section>
  <section class="panel"><h3>Niveles clave (cerca del precio)</h3><div class="kv" id="lvls"><span>Cargando…</span><span></span></div>
-  <p class="mut small">Máx/mín 24 h y swings (pivote de 3 velas) de las últimas 150 velas del intervalo. Si SUBE queda a menos de la distancia mínima de una resistencia (o BAJA de un soporte), la señal pasa a ESPERA.</p></section>
+  <details class="fold"><summary>Cómo se usan los niveles</summary><div class="foldbody"><p class="mut small">Máx/mín 24 h y swings (pivote de 3 velas) de las últimas 150 velas del intervalo. Si SUBE queda a menos de la distancia mínima de una resistencia (o BAJA de un soporte), la señal pasa a ESPERA.</p></div></details></section>
  <section class="panel"><h3>Backtest histórico (regla v4 combinada · últimas ~1000 velas)</h3>
   <div class="two"><div><h4>Fuera de muestra (último 40%)</h4><div class="kv" id="btoos"></div></div><div><h4>Todas las velas</h4><div class="kv" id="btall"></div></div></div>
   <div class="be" id="bebt">—</div>
-  <p class="mut small">Los umbrales se eligieron con el primer 60% de las velas y se reportan en el último 40% (fuera de muestra), para no hacernos trampa. Aun así las muestras son pequeñas (decenas de señales): un número alto con pocas señales puede ser pura suerte. ≈50% = moneda al aire. Equilibrio ≈53%. Entran en el backtest: EMA, RSI, taker, flujo taker, tendencia 15m/1h/4h y niveles. <b>No entran</b> (sin historial gratis): libro de órdenes, funding, open interest y cuotas de Polymarket. El backtest usa velas del exchange, no el TWAP de Chainlink.</p></section>
-<section class="panel" style="border:1px solid #c90"><h3>⚠️ Sin ventaja comprobada (revisión 24-oct-2026)</h3><p class="small">Probé la regla con ~14,300 velas de 15m (150 días, Binance) y 2,998 mercados resueltos de Polymarket con sus cuotas reales. Fuera de muestra (último 40%) la regla actual acertó <b>47.8%</b> (2,998 señales): peor que una moneda. Ninguna alternativa (reversión, momentum, filtros de volatilidad/horario, entrada a mitad de vela con cuotas reales) pasó la prueba estricta (≥55% con ≥300 señales y valor esperado positivo tras comisiones). <b>No apuestes dinero real con esta señal.</b></p></section>
- <section class="panel"><h3>La regla v4 (transparente)</h3><ol class="small">
+  <details class="fold"><summary>Metodología y límites del backtest</summary><div class="foldbody"><p class="mut small">Los umbrales se eligieron con el primer 60% de las velas y se reportan en el último 40% (fuera de muestra), para no hacernos trampa. Aun así las muestras son pequeñas (decenas de señales): un número alto con pocas señales puede ser pura suerte. ≈50% = moneda al aire. Equilibrio ≈53%. Entran en el backtest: EMA, RSI, taker, flujo taker, tendencia 15m/1h/4h y niveles. <b>No entran</b> (sin historial gratis): libro de órdenes, funding, open interest y cuotas de Polymarket. El backtest usa velas del exchange, no el TWAP de Chainlink.</p></div></details></section>
+<section class="panel warn"><h3>⚠️ Sin ventaja comprobada (revisión 24-oct-2026)</h3><p class="small">Probé la regla con ~14,300 velas de 15m (150 días, Binance) y 2,998 mercados resueltos de Polymarket con sus cuotas reales. Fuera de muestra (último 40%) la regla actual acertó <b>47.8%</b> (2,998 señales): peor que una moneda. Ninguna alternativa (reversión, momentum, filtros de volatilidad/horario, entrada a mitad de vela con cuotas reales) pasó la prueba estricta (≥55% con ≥300 señales y valor esperado positivo tras comisiones). <b>No apuestes dinero real con esta señal.</b></p></section>
+ <section class="panel rulepanel"><details class="fold big-fold"><summary>La regla v4 (transparente)</summary><div class="foldbody"><ol class="small">
   <li><b>EMA9 vs EMA21</b> del cierre: EMA9 &gt; EMA21 → +1, &lt; → −1.</li>
   <li><b>RSI14</b>: &gt; 55 → +1, &lt; 45 → −1, entre medio → 0.</li>
   <li><b>Ratio taker-buy</b> de la última vela cerrada: &gt; 0.52 → +1, &lt; 0.48 → −1 (solo Binance da este dato).</li>
@@ -72,9 +72,9 @@
   <li><b>Filtro niveles</b>: nada de SUBE si hay resistencia a menos de 1×ATR14 (5m) / 0.5×ATR14 (15m); igual con BAJA y soportes.</li>
   <li><b>Filtro cuotas</b>: si Polymarket ya cobra más de 60¢ por nuestro lado al fijar la señal → <b class="am">SIN VALOR</b> (cuenta como ESPERA en el marcador). No entra en el backtest.</li></ol>
   <p class="mut small">La señal se calcula <b>una sola vez</b> con las velas ya cerradas al inicio de la ventana y queda fija hasta el cierre (no cambia a mitad de vela). El marcador califica solo esa señal fija. Velas con cierre = apertura no cuentan. Calificación, en este orden: 1) resultado oficial del mercado Polymarket (gamma-api, ventana btc-updown-5m/15m ya cerrada); 2) si no está, TWAP 60 s de Chainlink capturado por esta página al inicio y al final (SUBE si final ≥ objetivo); 3) si no, la vela del exchange.</p>
-  <p class="mut small"><b>Fuente del mercado:</b> Phantom / Polymarket resuelven BTC Up/Down con el <b>Chainlink BTC/USD TWAP 60 s</b> (no el spot): el objetivo es ese TWAP al inicio de la ventana. Esta página pide el mismo openPrice que la app (<code>polymarket.com/api/crypto/crypto-price</code> con <code>twapEnabled=true&amp;twapLookbackSeconds=60</code>), el <code>priceToBeat</code> de gamma-api (evento actual, mercado 5m hermano con el mismo inicio, o <code>finalPrice</code> del 5m anterior) y captura el feed <code>crypto_prices_twap_sixty</code> de ws-live-data.polymarket.com en el segundo de apertura. El precio “ahora” sigue siendo el spot Chainlink. Si el objetivo no es oficial, se marca con ⚠. Cuotas: CLOB midpoint cada 5 s. Verifica siempre el objetivo en la app.</p></section>
+  <p class="mut small"><b>Fuente del mercado:</b> Phantom / Polymarket resuelven BTC Up/Down con el <b>Chainlink BTC/USD TWAP 60 s</b> (no el spot): el objetivo es ese TWAP al inicio de la ventana. Esta página pide el mismo openPrice que la app (<code>polymarket.com/api/crypto/crypto-price</code> con <code>twapEnabled=true&amp;twapLookbackSeconds=60</code>), el <code>priceToBeat</code> de gamma-api (evento actual, mercado 5m hermano con el mismo inicio, o <code>finalPrice</code> del 5m anterior) y captura el feed <code>crypto_prices_twap_sixty</code> de ws-live-data.polymarket.com en el segundo de apertura. El precio “ahora” sigue siendo el spot Chainlink. Si el objetivo no es oficial, se marca con ⚠. Cuotas: CLOB midpoint cada 5 s. Verifica siempre el objetivo en la app.</p></div></details></section>
 </main>
-<footer>Velas: Binance (data-api.binance.vision) · respaldo Coinbase / Kraken / Bybit. Objetivo oficial: Chainlink BTC/USD TWAP 60 s (crypto-price + gamma priceToBeat + feed twap_sixty). Spot en vivo: crypto_prices_chainlink. Cuotas: clob.polymarket.com. Resultados: gamma-api.polymarket.com. Libro: Binance. Funding/OI: Binance futuros / OKX. Marcador en localStorage. Solo paper, sin dinero real.</footer>
+<footer><details class="fold"><summary>Fuentes de datos</summary><div class="foldbody">Velas: Binance (data-api.binance.vision) · respaldo Coinbase / Kraken / Bybit. Objetivo oficial: Chainlink BTC/USD TWAP 60 s (crypto-price + gamma priceToBeat + feed twap_sixty). Spot en vivo: crypto_prices_chainlink. Cuotas: clob.polymarket.com. Resultados: gamma-api.polymarket.com. Libro: Binance. Funding/OI: Binance futuros / OKX. Marcador en localStorage. Solo paper, sin dinero real.</div></details><div class="credit">PULSE · Señales BTC · solo PAPER</div></footer>
 <script>
 // PULSE Señales v3 (todo en esta página). Regla pura + UI.
 (function(root){
@@ -361,7 +361,7 @@ setInterval(async()=>{if(!cur||!cur.t||document.visibilityState==='hidden')retur
 })();
 
 </script>
-<style>.fzbar{height:10px;border-radius:5px;background:var(--red);overflow:hidden;margin:4px 0 6px}.fzbar i{display:block;height:100%;background:var(--green);width:50%}</style>
+
 <script>
 /* Paneles informativos v4.2: NO tocan la señal, marcador, objetivo Chainlink ni cuotas CLOB */
 (function(){'use strict';
@@ -419,5 +419,12 @@ async function lastW(){const G=900000,now=Date.now(),t0=Math.floor(now/G)*G-G,t1
  $('lastW').innerHTML=`<span class="${up?'up':'dn'}">${up?'UP ▲':'DOWN ▼'} ${p>=0?'+':''}${p.toFixed(3)}%</span><br><span class="mut" style="font-size:11px">${hh} · abrió ${px(o)} → cerró ${px(c)} · ${how}</span>`}
 $('whTh').textContent=(WH/1000)+'k';loopF();c30();lastW();setInterval(loopF,5000);setInterval(()=>{if(document.visibilityState!=='hidden')c30()},10000);setInterval(lastW,30000);
 })();
+</script>
+<script>
+/* Solo presentación: barra de progreso de la vela (no toca la lógica de señal) */
+(function(){try{const f=document.getElementById('cdfill');if(!f)return;const MS={'5m':300000,'15m':900000};
+function tick(){let iv='5m';const on=document.querySelector('.ivsel button.on');if(on&&MS[on.dataset.iv])iv=on.dataset.iv;else{const s=localStorage.getItem('senales_iv');if(MS[s])iv=s}
+f.style.width=((Date.now()%MS[iv])/MS[iv]*100).toFixed(1)+'%'}
+tick();setInterval(tick,500)}catch(e){}})();
 </script>
 </body></html>
