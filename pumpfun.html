@@ -136,7 +136,7 @@ async function load(){
     const v2=st.v2||{};
 
     $('bal').textContent=fmtBal(v1.balance_sol??p.balance_sol);
-    const pnl=Number(v1.realized_pnl_sol??p.realized_pnl_sol||0);
+    const pnl=Number((v1.realized_pnl_sol??p.realized_pnl_sol)||0);
     $('pnl').textContent=fmtSol(pnl);
     $('pnl').className='val sm '+(pnl>=0?'up':'dn');
     $('eq').textContent=fmtBal(v1.equity_approx_sol??p.equity_approx_sol);
