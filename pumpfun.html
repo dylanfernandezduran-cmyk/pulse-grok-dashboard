@@ -19,7 +19,7 @@ h1{font:800 18px/1.2 var(--sans);margin:0}.sub{color:var(--mut);font-size:12px;m
 .banner{background:rgba(245,176,65,.1);border:1px solid rgba(245,176,65,.45);color:var(--amber);border-radius:12px;padding:10px 12px;text-align:center;font:800 13px var(--sans);margin-bottom:12px}
 .banner small{display:block;font:500 11px var(--sans);color:#d9b678;margin-top:3px;font-weight:500}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-@media(min-width:560px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+@media(min-width:560px){.grid.k4{grid-template-columns:1fr 1fr 1fr 1fr}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px}
 .card .lbl{color:var(--mut);font-size:11px;margin-bottom:4px}.card .val{font:700 18px var(--mono)}.card .val.sm{font-size:14px}
 .up{color:var(--green)}.dn{color:var(--red)}.mut{color:var(--mut)}
@@ -33,6 +33,7 @@ th{color:var(--mut);font:700 10.5px var(--mono);letter-spacing:.04em}
 .pill{display:inline-block;padding:2px 8px;border-radius:999px;font:700 11px var(--mono)}
 .pill.buy{background:rgba(31,209,122,.15);color:var(--green)}.pill.sell{background:rgba(240,71,92,.15);color:var(--red)}
 .pill.skip{background:#262b33;color:var(--mut)}.pill.enter{background:rgba(31,209,122,.15);color:var(--green)}.pill.exit{background:rgba(245,176,65,.15);color:var(--amber)}
+.pill.v1{background:#262b33;color:var(--mut)}.pill.v2{background:rgba(31,209,122,.12);color:var(--green)}
 .err{color:var(--red);padding:12px;background:var(--panel);border-radius:12px;border:1px solid var(--line)}
 </style>
 </head>
@@ -43,41 +44,50 @@ th{color:var(--mut);font:700 10.5px var(--mono);letter-spacing:.04em}
       <div class="logo">P</div>
       <div>
         <h1>pump.fun PAPER</h1>
-        <div class="sub">solo simulación · sin wallets</div>
+        <div class="sub">solo simulación · sin wallets · V1 + V2</div>
       </div>
     </div>
     <div class="fresh" id="fresh"><span class="dot off"></span>…</div>
   </div>
 
-  <div class="banner">PAPER ONLY<small>SOL ficticio · fees/slippage simulados · no money real</small></div>
+  <div class="banner">PAPER ONLY<small>SOL ficticio · fees/slippage simulados · no money real · V2 es experimento (muestra chica)</small></div>
 
-  <div class="grid" id="kpis">
-    <div class="card"><div class="lbl">Balance</div><div class="val sm" id="bal">—</div></div>
-    <div class="card"><div class="lbl">PnL realizado</div><div class="val sm" id="pnl">—</div></div>
-    <div class="card"><div class="lbl">Equity ≈</div><div class="val sm" id="eq">—</div></div>
+  <div class="section">V1 baseline (bugfixed)</div>
+  <div class="grid k4" id="kpis-v1">
+    <div class="card"><div class="lbl">Balance V1</div><div class="val sm" id="bal">—</div></div>
+    <div class="card"><div class="lbl">PnL V1</div><div class="val sm" id="pnl">—</div></div>
+    <div class="card"><div class="lbl">Equity V1 ≈</div><div class="val sm" id="eq">—</div></div>
     <div class="card"><div class="lbl">Blacklist</div><div class="val sm" id="bl">—</div></div>
+  </div>
+
+  <div class="section">V2 mayhem+holders (nuevo, 10 SOL aparte)</div>
+  <div class="grid k4" id="kpis-v2">
+    <div class="card"><div class="lbl">Balance V2</div><div class="val sm" id="bal2">—</div></div>
+    <div class="card"><div class="lbl">PnL V2</div><div class="val sm" id="pnl2">—</div></div>
+    <div class="card"><div class="lbl">Equity V2 ≈</div><div class="val sm" id="eq2">—</div></div>
+    <div class="card"><div class="lbl">Closed V2</div><div class="val sm" id="c2">—</div></div>
   </div>
 
   <div class="grid">
     <div class="card"><div class="lbl">Tokens vistos</div><div class="val sm" id="seen">—</div></div>
-    <div class="card"><div class="lbl">Entries / Exits</div><div class="val sm" id="ee">—</div></div>
+    <div class="card"><div class="lbl">Entries V1 / V2</div><div class="val sm" id="ee">—</div></div>
     <div class="card"><div class="lbl">Skip dev&gt;10%</div><div class="val sm" id="sdev">—</div></div>
     <div class="card"><div class="lbl">Skip bundle&gt;25%</div><div class="val sm" id="sbun">—</div></div>
   </div>
 
   <div class="section">Posiciones abiertas</div>
   <div class="card" style="padding:0;overflow:auto">
-    <table id="pos"><thead><tr><th>SYM</th><th>AGE</th><th>COST</th><th>MINT</th></tr></thead><tbody></tbody></table>
+    <table id="pos"><thead><tr><th>STR</th><th>SYM</th><th>AGE</th><th>COST</th><th>MINT</th></tr></thead><tbody></tbody></table>
   </div>
 
   <div class="section">Trades recientes</div>
   <div class="card" style="padding:0;overflow:auto">
-    <table id="tr"><thead><tr><th>CUANDO</th><th>SIDE</th><th>SYM</th><th>PnL</th><th>POR QUÉ</th></tr></thead><tbody></tbody></table>
+    <table id="tr"><thead><tr><th>CUANDO</th><th>STR</th><th>SIDE</th><th>SYM</th><th>PnL</th><th>POR QUÉ</th></tr></thead><tbody></tbody></table>
   </div>
 
   <div class="section">Decisiones</div>
   <div class="card" style="padding:0;overflow:auto">
-    <table id="dec"><thead><tr><th>CUANDO</th><th>ACT</th><th>REASON</th><th>SYM</th></tr></thead><tbody></tbody></table>
+    <table id="dec"><thead><tr><th>CUANDO</th><th>STR</th><th>ACT</th><th>REASON</th><th>SYM</th></tr></thead><tbody></tbody></table>
   </div>
 
   <div class="nav">
@@ -121,39 +131,54 @@ async function load(){
     const stale=age>180;
     $('fresh').innerHTML=`<span class="dot${stale?' off':''}"></span>${stale?'STALE':'LIVE'}<br>${age}s`;
     const p=s.paper||{}, c=s.counts||{}, sk=s.skips_by_rule||{};
-    $('bal').textContent=fmtBal(p.balance_sol);
-    const pnl=Number(p.realized_pnl_sol||0);
+    const st=s.strategies||{};
+    const v1=st.v1||p;
+    const v2=st.v2||{};
+
+    $('bal').textContent=fmtBal(v1.balance_sol??p.balance_sol);
+    const pnl=Number(v1.realized_pnl_sol??p.realized_pnl_sol||0);
     $('pnl').textContent=fmtSol(pnl);
     $('pnl').className='val sm '+(pnl>=0?'up':'dn');
-    $('eq').textContent=fmtBal(p.equity_approx_sol);
+    $('eq').textContent=fmtBal(v1.equity_approx_sol??p.equity_approx_sol);
     $('bl').textContent=String(c.blacklist??'—');
+
+    $('bal2').textContent=fmtBal(v2.balance_sol);
+    const pnl2=Number(v2.realized_pnl_sol||0);
+    $('pnl2').textContent=v2.balance_sol==null?'—':fmtSol(pnl2);
+    $('pnl2').className='val sm '+(pnl2>=0?'up':'dn');
+    $('eq2').textContent=fmtBal(v2.equity_approx_sol);
+    $('c2').textContent=String(v2.closed_trades??'—');
+
     $('seen').textContent=String(c.tokens_seen??'—');
-    $('ee').textContent=`${c.entries??0} / ${c.exits??0}`;
+    $('ee').textContent=`${c.entries??0} / ${c.entries_v2??0}`;
     $('sdev').textContent=String(sk.dev_gt_10pct??0);
     $('sbun').textContent=String(sk.bundle_gt_25pct??0);
 
     const pb=$('pos').querySelector('tbody'); pb.innerHTML='';
     const opens=s.open_positions||[];
-    if(!opens.length) pb.innerHTML='<tr><td colspan=4 class=mut>ninguna</td></tr>';
+    if(!opens.length) pb.innerHTML='<tr><td colspan=5 class=mut>ninguna</td></tr>';
     else opens.forEach(o=>{
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td><b>${o.symbol||'?'}</b></td><td class=mono>${o.age_sec??'—'}s</td><td class=mono>${Number(o.cost_sol||0).toFixed(3)}</td><td class="mono mut">${o.mint_short||''}</td>`;
+      const str=o.strategy||'v1';
+      tr.innerHTML=`<td><span class="pill ${str}">${str}</span></td><td><b>${o.symbol||'?'}</b></td><td class=mono>${o.age_sec??'—'}s</td><td class=mono>${Number(o.cost_sol||0).toFixed(3)}</td><td class="mono mut">${o.mint_short||''}</td>`;
       pb.appendChild(tr);
     });
 
     const tb=$('tr').querySelector('tbody'); tb.innerHTML='';
-    (s.recent_trades||[]).slice(0,20).forEach(t=>{
+    (s.recent_trades||[]).slice(0,25).forEach(t=>{
       const tr=document.createElement('tr');
       const pnl=t.pnl_sol; const pc=(pnl==null||t.side==='buy')?'mut':(pnl>=0?'up':'dn');
-      tr.innerHTML=`<td class="mono mut">${when(t.ts)}</td><td><span class="pill ${t.side}">${t.side}</span></td><td><b>${t.symbol||''}</b></td><td class="mono ${pc}">${t.side==='sell'?fmtSol(pnl):'—'}</td><td class="mut">${t.reason||''}</td>`;
+      const str=t.strategy||'v1';
+      tr.innerHTML=`<td class="mono mut">${when(t.ts)}</td><td><span class="pill ${str}">${str}</span></td><td><span class="pill ${t.side}">${t.side}</span></td><td><b>${t.symbol||''}</b></td><td class="mono ${pc}">${t.side==='sell'?fmtSol(pnl):'—'}</td><td class="mut">${t.reason||''}</td>`;
       tb.appendChild(tr);
     });
 
     const db=$('dec').querySelector('tbody'); db.innerHTML='';
-    (s.recent_decisions||[]).slice(0,20).forEach(d=>{
+    (s.recent_decisions||[]).slice(0,25).forEach(d=>{
       const tr=document.createElement('tr');
       const cls=d.action==='enter'?'enter':d.action==='exit'?'exit':d.action==='skip'?'skip':'skip';
-      tr.innerHTML=`<td class="mono mut">${when(d.ts)}</td><td><span class="pill ${cls}">${d.action}</span></td><td class=mut>${d.reason||''}</td><td><b>${d.symbol||''}</b></td>`;
+      const str=d.strategy||'v1';
+      tr.innerHTML=`<td class="mono mut">${when(d.ts)}</td><td><span class="pill ${str}">${str}</span></td><td><span class="pill ${cls}">${d.action}</span></td><td class=mut>${d.reason||''}</td><td><b>${d.symbol||''}</b></td>`;
       db.appendChild(tr);
     });
     $('note').textContent=`actualizado ${when(s.generated_at)} · ${s.disclaimer||'PAPER only'}`;
