@@ -1,0 +1,141 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PULSE · SolDesk memecoins (PAPEL)</title><meta name="theme-color" content="#05070d"><meta name="color-scheme" content="dark">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="senales.css?v=3">
+<style>
+.hero.neutral{--sig:var(--a2);--sigrgb:25,211,255}
+.hero.pos{--sig:var(--green);--sigrgb:34,229,139}.hero.neg{--sig:var(--red);--sigrgb:255,77,106}
+.hero .big-n{font:700 44px/1.05 var(--sans);letter-spacing:-.01em;font-variant-numeric:tabular-nums;margin:12px 0 2px;text-shadow:0 0 26px rgba(var(--sigrgb),.55);color:var(--sig)}
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);margin-bottom:12px}
+.seg button{flex:1;padding:9px;font:700 13px var(--sans);background:transparent;color:var(--mut);border:0;border-radius:10px;cursor:pointer}
+.seg button.on{color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2))}
+.funnel{display:flex;flex-direction:column;gap:6px}
+.frow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) 56px;gap:8px;align-items:center;font-size:12.5px}
+.frow .bar{height:10px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.frow .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.frow b{text-align:right;font-variant-numeric:tabular-nums}
+.frow.k .bar i{background:linear-gradient(90deg,#c0334b,var(--red))}.frow.g .bar i{background:linear-gradient(90deg,#14b36c,var(--green))}
+.list{display:flex;flex-direction:column;gap:8px}
+.it{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;min-width:0}
+.it .r1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.it .r1 b{font-size:15px;overflow-wrap:anywhere}
+.it .r2{color:var(--mut);font-size:12px;margin-top:3px;overflow-wrap:anywhere;line-height:1.4}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font:700 10.5px var(--mono);background:rgba(255,255,255,.08);color:var(--mut);margin-left:6px;vertical-align:1px}
+.pill.g{background:rgba(34,229,139,.15);color:var(--green)}.pill.r{background:rgba(255,77,106,.15);color:var(--red)}.pill.a{background:rgba(255,185,56,.15);color:var(--amber)}
+.empty{color:var(--mut);font-size:13px;padding:6px 2px}
+.kvs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kvs>div{background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:11.5px;color:var(--mut);min-width:0}
+.kvs b{display:block;font:700 18px var(--sans);color:var(--txt);margin-top:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kvs b.up{color:var(--green)}.kvs b.dn{color:var(--red)}
+.err{color:var(--red)}
+@media(min-width:560px){.kvs{grid-template-columns:repeat(6,1fr)}}
+</style></head><body>
+<header class="hs"><a class="brand" href="./index.html" aria-label="PULSE"><span class="logo"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M2 17h6l3-8 5 15 4-11 2 4h8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="bt"><b>PULSE</b><small>SolDesk · Solana</small></span></a>
+<span class="sp"></span><span class="upd"><i class="live" id="dot"></i><span class="mut" id="upd">cargando…</span></span>
+<nav><a href="./index.html">Dashboard</a><a href="./senales.html">Señales</a><a href="./pumpfun.html">pump.fun</a><a href="./soldesk.html" class="on">SolDesk</a></nav></header>
+<main class="sw">
+ <section class="panel hero neutral" id="hero">
+  <div class="hero-top"><span class="chip"><i class="live"></i>SOLO PAPEL</span><span class="chip ghost" id="eng">motor…</span></div>
+  <div class="mut tgt">Equity simulada (USD) · dinero ficticio</div>
+  <div class="big-n" id="eq">—</div>
+  <div id="pnlTot" class="mut">—</div>
+ </section>
+ <div class="banner sm"><span class="bi">⚠</span><span>Escritorio 100% simulado: sin wallets, sin llaves, sin dinero real, sin apalancamiento. Comisión 1% + slippage 1% por lado. Resultados reales del motor, no inventados; si algo no se pudo verificar, el token se descarta como <b>unverified</b>.</span></div>
+
+ <section class="panel"><h3>Cuenta de papel</h3>
+  <div class="kvs">
+   <div>Balance libre<b id="cash">—</b></div><div>Abiertas<b id="nopen">—</b></div><div>Cerradas<b id="nclosed">—</b></div>
+   <div>Win rate<b id="wr">—</b></div><div>PnL realizado<b id="rpnl">—</b></div><div>PnL medio/trade<b id="avg">—</b></div>
+  </div></section>
+
+ <section class="panel"><h3>Posiciones abiertas</h3><div class="list" id="open"><div class="empty">cargando…</div></div></section>
+ <section class="panel"><h3>Trades cerrados</h3><div class="list" id="closed"><div class="empty">cargando…</div></div></section>
+
+ <section class="panel"><h3>Embudo del pipeline</h3>
+  <div class="seg" role="group" aria-label="Periodo"><button data-p="h24" class="on">24 h</button><button data-p="total">Total</button></div>
+  <div class="funnel" id="funnel"></div>
+  <p class="mut small" id="funnelNote" style="margin:10px 0 0"></p>
+ </section>
+ <section class="panel"><h3>Eliminados por razón</h3><div class="funnel" id="reasons"></div>
+  <p class="mut small" style="margin:10px 0 0">Un token puede sumar varias razones; las comprobaciones sin datos verificables aparecen como <code>unverified:…</code>.</p></section>
+
+ <section class="panel"><h3>Log reciente de kills</h3><div class="list" id="kills"><div class="empty">cargando…</div></div></section>
+ <section class="panel"><h3>Últimos scores del Analista</h3><div class="list" id="scores"><div class="empty">cargando…</div></div></section>
+
+ <section class="panel rulepanel"><details class="fold big-fold"><summary>Reglas y límites</summary><div class="foldbody" id="rules"></div></details></section>
+</main>
+<footer><p>Fuente: gist <code>soldesk_state.json</code> · refresco ~1 min · horas en America/Mexico_City.</p><div class="credit">PULSE · solo papel</div></footer>
+<script>
+(function(){
+'use strict';
+var O='dylanfernandezduran-cmyk', G='a2aef1f302ecb2680905497477cd051e', F='soldesk_state.json';
+var S=null, period='h24';
+function $(id){return document.getElementById(id)}
+function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function num(x){return (x==null||isNaN(Number(x)))?null:Number(x)}
+function usd(x,sign){var n=num(x); if(n===null)return '—'; return (sign&&n>=0?'+':'')+(n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pct(x,sign){var n=num(x); if(n===null)return '—'; return (sign&&n>=0?'+':'')+n.toFixed(1)+'%'}
+function cls(x){var n=num(x); return n===null||n===0?'':(n>0?'up':'dn')}
+function when(ts){ if(!ts)return '—'; try{return new Date(ts*1000).toLocaleString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return '—'} }
+function ago(ts){ if(!ts)return '—'; var s=Math.max(0,Math.floor(Date.now()/1000-ts)); if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m'; if(s<86400)return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m'; return Math.floor(s/86400)+'d'}
+function px(x){var n=num(x); if(n===null)return '—'; return n>=1?n.toFixed(4):n.toPrecision(4)}
+var RL={liquidity_lt_40k:'Liquidez < $40k',volume_1h_lt_50k:'Volumen 1h < $50k',pumped_gt_80pct_1h:'Ya +80% en 1h',
+ mint_authority_active:'Mint authority activa',freeze_authority_active:'Freeze authority activa',lp_not_burned_or_locked:'LP no quemada/bloqueada',
+ top10_gt_25pct:'Top10 holders > 25%',dev_holds_gt_3pct:'Dev > 3%',dev_past_rugs:'Dev con rugs previos',bundled_gt_10pct:'Lanzamiento bundled > 10%',
+ rugged_flag_creator:'Marcado rugged'};
+function rl(r){ if(RL[r])return RL[r]; if(r&&r.indexOf('unverified:')===0)return 'Sin verificar: '+r.slice(11); return r||'?' }
+async function getJSON(url){var r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error('HTTP '+r.status); return r.json()}
+async function load(){
+  try{
+    var s;
+    try{ s=await getJSON('https://gist.githubusercontent.com/'+O+'/'+G+'/raw/'+F+'?t='+Date.now()) }
+    catch(e){ var g=await getJSON('https://api.github.com/gists/'+G); s=JSON.parse(g.files[F].content) }
+    S=s; render();
+  }catch(e){ $('upd').textContent='sin datos'; $('upd').className='err'; $('dot').style.background='var(--red)'; console.error(e) }
+}
+function row(label,n,max,c){ var w=max>0?Math.max(2,Math.round(100*n/max)):0; if(!n)w=0;
+  return '<div class="frow '+(c||'')+'"><span>'+esc(label)+'</span><span class="bar"><i style="width:'+w+'%"></i></span><b>'+n+'</b></div>' }
+function renderFunnel(){
+  if(!S)return; var p=(S.pipeline||{})[period]||{}; var mx=Math.max(p.seen||0,1);
+  var rows=[['Tokens vistos (API)',p.seen||0,''],['En ventana (30m–72h, mcap $300k–$20M)',p.in_window||0,''],['Evaluados por el Filtro',p.evaluated||0,''],
+   ['Eliminados',p.killed||0,'k'],['Pasaron el Filtro',p.passed_filter||0,'g'],['Score ≥ '+((S.config||{}).score_pass||70),p.passed_score||0,'g'],['Entradas (papel)',p.entries||0,'g']];
+  $('funnel').innerHTML=rows.map(function(r){return row(r[0],r[1],mx,r[2])}).join('');
+  $('funnelNote').textContent='Escaneos: '+(p.scans||0)+' · tokens únicos evaluados: '+(p.unique_tokens_evaluated||0)+'. “Vistos/En ventana” se cuenta por escaneo (un token se repite en cada ciclo).';
+  var rs=((S.kills_by_reason||{})[period])||[]; var m2=1; rs.forEach(function(r){if(r.n>m2)m2=r.n});
+  $('reasons').innerHTML=rs.length?rs.map(function(r){return row(rl(r.reason)+' ('+r.tokens+' tok)',r.n,m2,'k')}).join(''):'<div class="empty">Aún sin kills en este periodo.</div>';
+}
+function render(){
+  var a=S.account||{}, st=S.stats||{}, en=S.engine||{};
+  var age=Math.floor(Date.now()/1000-(S.generated_at||0)), stale=age>240;
+  $('upd').textContent=(stale?'DESACTUALIZADO ':'EN VIVO ')+age+'s'; $('upd').className=stale?'dn':'mut'; $('dot').style.background=stale?'var(--red)':'';
+  var hb=num(en.hb_age_s); var alive=hb!==null&&hb<(age+120);
+  $('eng').textContent=(alive?'motor activo':'motor SIN latido')+(en.last_scan_ts?' · scan hace '+ago(en.last_scan_ts):'');
+  $('hero').className='panel hero '+(num(a.total_pnl)>0?'pos':(num(a.total_pnl)<0?'neg':'neutral'));
+  $('eq').textContent=usd(a.equity);
+  $('pnlTot').innerHTML='PnL total '+'<b class="'+cls(a.total_pnl)+'">'+usd(a.total_pnl,1)+' ('+pct(a.total_pnl_pct,1)+')</b> · inicio '+usd(a.start);
+  $('cash').textContent=usd(a.cash); $('nopen').textContent=st.open==null?'—':st.open; $('nclosed').textContent=st.closed==null?'—':st.closed;
+  $('wr').textContent=st.win_rate==null?'—':pct(st.win_rate)+' ('+st.wins+'G/'+st.losses+'P)';
+  var r=$('rpnl'); r.textContent=usd(a.realized_pnl,1); r.className=cls(a.realized_pnl);
+  var av=$('avg'); av.textContent=st.avg_pnl_pct==null?'—':pct(st.avg_pnl_pct,1); av.className=cls(st.avg_pnl_pct);
+  var op=S.open_positions||[];
+  $('open').innerHTML=op.length?op.map(function(p){return '<div class="it"><div class="r1"><b>'+esc(p.symbol)+(p.trail_active?'<span class="pill a">trailing</span>':'')+'</b><b class="'+cls(p.pnl_pct)+'">'+pct(p.pnl_pct,1)+'</b></div>'+
+    '<div class="r2">entrada '+px(p.entry_px)+' · actual '+px(p.last_px)+' · stop '+px(p.stop_px)+'<br>'+usd(p.cost_usd)+' · score '+(num(p.score)===null?'—':p.score)+' · hace '+ago(p.opened_ts)+'</div></div>'}).join(''):'<div class="empty">Sin posiciones abiertas. El Analista solo entrega tokens con score ≥ 70.</div>';
+  var cl=S.closed_trades||[];
+  $('closed').innerHTML=cl.length?cl.map(function(t){return '<div class="it"><div class="r1"><b>'+esc(t.symbol)+'</b><b class="'+cls(t.pnl_usd)+'">'+usd(t.pnl_usd,1)+' · '+pct(t.pnl_pct,1)+'</b></div>'+
+    '<div class="r2">'+esc(when(t.closed_ts))+' · '+esc(t.reason)+'</div></div>'}).join(''):'<div class="empty">Aún no hay trades cerrados.</div>';
+  var ks=S.recent_kills||[];
+  $('kills').innerHTML=ks.length?ks.map(function(k){return '<div class="it"><div class="r1"><b>'+esc(k.symbol)+'<span class="pill '+(String(k.reason).indexOf('unverified')===0?'a':'r')+'">'+esc(rl(k.reason))+'</span></b><span class="mut small">'+esc(when(k.ts))+'</span></div><div class="r2">'+esc(k.detail)+'</div></div>'}).join(''):'<div class="empty">Sin kills todavía.</div>';
+  var sc=S.recent_scores||[];
+  $('scores').innerHTML=sc.length?sc.map(function(k){return '<div class="it"><div class="r1"><b>'+esc(k.symbol)+'<span class="pill '+(k.passed?'g':'')+'">'+(k.passed?'PASA':'bajo')+'</span></b><b>'+esc(k.score)+'</b></div><div class="r2">'+esc(when(k.ts))+'</div></div>'}).join(''):'<div class="empty">Ningún token ha pasado el Filtro todavía (nada que puntuar).</div>';
+  var c=S.config||{}, w=c.weights||{};
+  $('rules').innerHTML='<p class="mut small"><b>Scout</b>: pares Solana de '+esc(c.age_min)+' min a '+esc(c.age_max_h)+' h, mcap $'+((c.mcap||[])[0]||0).toLocaleString('es-MX')+'–$'+((c.mcap||[])[1]||0).toLocaleString('es-MX')+' (DexScreener).</p>'+
+   '<p class="mut small"><b>Filtro</b>: mint/freeze authority activa, LP no quemada/bloqueada, liquidez &lt; $40k, vol 1h &lt; $50k, top10 &gt; 25% (sin LP), dev &gt; 3% o con rugs, bundle/insiders &gt; 10%, ya +80% en 1h. Dato no verificable = kill.</p>'+
+   '<p class="mut small"><b>Analista</b>: score 0–100 (pasa ≥ '+esc(c.score_pass)+'). Pesos: '+Object.keys(w).map(function(k){return esc(k)+' '+esc(w[k])}).join(' · ')+'. <b>Smart wallets: peso 0</b> (sin fuente gratuita). Los componentes sin dato se descartan y se renormaliza.</p>'+
+   '<p class="mut small"><b>Ejecutor</b>: máx '+esc(c.max_pos_pct)+'% del equity por trade, comisión '+esc(c.fee_pct)+'% + slippage '+esc(c.slip_pct)+'% por lado. <b>Riesgo</b>: stop −'+esc(c.stop_pct)+'% desde la entrada; trailing se activa tras +'+esc(c.trail_activate_pct)+'% y sigue '+esc(c.trail_pct)+'% bajo el máximo. Precios cada ~15 s: un gap puede cerrar peor que el stop (se registra el precio observado).</p>'+
+   '<p class="mut small">Límites de datos: “dev con rugs previos” depende de la bandera de RugCheck + lista local (el historial detallado del creador no es gratis); “bundled” se aproxima con clusters de insiders de RugCheck.</p>';
+  renderFunnel();
+}
+Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){b.addEventListener('click',function(){period=b.getAttribute('data-p');Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(x){x.classList.toggle('on',x===b)});renderFunnel()})});
+load(); setInterval(load,60000);
+})();
+</script></body></html>
