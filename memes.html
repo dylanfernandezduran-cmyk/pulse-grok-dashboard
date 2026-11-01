@@ -1,0 +1,135 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PULSE · Memes (PAPEL)</title><meta name="theme-color" content="#05070d"><meta name="color-scheme" content="dark">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="senales.css?v=3">
+<style>
+.hero.neutral{--sig:var(--a2);--sigrgb:25,211,255}
+.hero.pos{--sig:var(--green);--sigrgb:34,229,139}.hero.neg{--sig:var(--red);--sigrgb:255,77,106}
+.hero .big-n{font:700 44px/1.05 var(--sans);letter-spacing:-.01em;font-variant-numeric:tabular-nums;margin:12px 0 2px;text-shadow:0 0 26px rgba(var(--sigrgb),.55);color:var(--sig)}
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);margin-bottom:12px}
+.seg button{flex:1;padding:9px;font:700 13px var(--sans);background:transparent;color:var(--mut);border:0;border-radius:10px;cursor:pointer}
+.seg button.on{color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2))}
+.funnel{display:flex;flex-direction:column;gap:6px}
+.frow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) 56px;gap:8px;align-items:center;font-size:12.5px}
+.frow .bar{height:10px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.frow .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.frow b{text-align:right;font-variant-numeric:tabular-nums}
+.frow.k .bar i{background:linear-gradient(90deg,#c0334b,var(--red))}.frow.g .bar i{background:linear-gradient(90deg,#14b36c,var(--green))}
+.list{display:flex;flex-direction:column;gap:8px}
+.it{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;min-width:0}
+.it .r1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.it .r1 b{font-size:15px;overflow-wrap:anywhere}
+.it .r2{color:var(--mut);font-size:12px;margin-top:3px;overflow-wrap:anywhere;line-height:1.4}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font:700 10.5px var(--mono);background:rgba(255,255,255,.08);color:var(--mut);margin-left:6px;vertical-align:1px}
+.pill.g{background:rgba(34,229,139,.15);color:var(--green)}.pill.r{background:rgba(255,77,106,.15);color:var(--red)}.pill.a{background:rgba(255,185,56,.15);color:var(--amber)}
+.empty{color:var(--mut);font-size:13px;padding:6px 2px}
+.kvs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kvs>div{background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:11.5px;color:var(--mut);min-width:0}
+.kvs b{display:block;font:700 18px var(--sans);color:var(--txt);margin-top:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kvs b.up{color:var(--green)}.kvs b.dn{color:var(--red)}
+.err{color:var(--red)}
+@media(min-width:560px){.kvs{grid-template-columns:repeat(6,1fr)}}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{color:var(--mut);font:600 11px var(--sans);text-align:left;padding:4px 6px;white-space:nowrap}
+.tbl td{padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl a{color:var(--a2);text-decoration:none;font-weight:700}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stale{color:var(--amber)}
+.banner.big{font-weight:600;line-height:1.45}
+</style></head><body>
+<header class="hs"><a class="brand" href="./index.html" aria-label="PULSE"><span class="logo"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M2 17h6l3-8 5 15 4-11 2 4h8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="bt"><b>PULSE</b><small>Memes · Solana</small></span></a>
+<span class="sp"></span><span class="upd"><i class="live" id="dot"></i><span class="mut" id="upd">cargando…</span></span>
+<nav><a href="./index.html">Dashboard</a><a href="./senales.html">Señales</a><a href="./soldesk.html">SolDesk</a><a href="./memes.html" class="on">Memes</a></nav></header>
+<main class="sw">
+ <div class="banner big"><span class="bi">⚠</span><span>SOLO PAPEL. Menos de 100 operaciones no prueba nada. El papel es más optimista que la realidad (sin fallas de transacción, sandwich ni tokens invendibles).</span></div>
+ <section class="panel hero neutral" id="hero">
+  <div class="hero-top"><span class="chip"><i class="live"></i>SOLO PAPEL</span><span class="chip ghost" id="ops">— ops</span></div>
+  <div class="mut tgt">Valor total simulado (USD) · empezó con $100 ficticios</div>
+  <div class="big-n" id="eq">—</div>
+  <div id="pnlTot" class="mut">—</div>
+ </section>
+ <section class="panel"><h3>Cuenta de papel</h3>
+  <div class="kvs">
+   <div>Caja libre<b id="cash">—</b></div><div>En posiciones<b id="ov">—</b></div><div>Abiertas<b id="nopen">—</b></div>
+   <div>Cerradas<b id="nclosed">—</b></div><div>Win rate<b id="wr">—</b></div><div>PnL realizado<b id="rpnl">—</b></div>
+   <div>Caída máx.<b id="dd">—</b></div><div>PnL medio/op<b id="avg">—</b></div><div>Tokens vistos<b id="seen">—</b></div>
+  </div>
+  <p class="mut small" style="margin:10px 0 0">Reglas: $20 por operación, máx. 3 abiertas, take profit +25%, stop −6%, salida por tiempo a los 60 min y salida por rug (liquidez a la mitad). Caída máx. = peor retroceso del PnL acumulado de las operaciones cerradas. El valor de las abiertas es a precio de mercado, antes de costos de salida.</p>
+ </section>
+ <section class="panel"><h3>Posiciones abiertas</h3><div id="open"><div class="empty">cargando…</div></div></section>
+ <section class="panel"><h3>Operaciones cerradas</h3><div class="list" id="closed"><div class="empty">cargando…</div></div></section>
+ <section class="panel"><h3>Motivos de salida</h3><div class="funnel" id="exits"><div class="empty">cargando…</div></div></section>
+ <section class="panel"><h3>Por qué se descartan tokens</h3><div class="funnel" id="disc"><div class="empty">cargando…</div></div>
+  <p class="mut small" style="margin:10px 0 0">Conteo acumulado de tokens que el filtro rechazó y la primera razón que los tumbó.</p></section>
+</main>
+<footer><p>Fuente: gist <code>pulse_memes.json</code> · refresco cada 30 s (el bot publica cada ~60 s) · horas en America/Mexico_City.</p><div class="credit">PULSE · solo papel</div></footer>
+<script>
+(function(){
+'use strict';
+var O='dylanfernandezduran-cmyk', G='a2aef1f302ecb2680905497477cd051e', F='pulse_memes.json';
+function $(id){return document.getElementById(id)}
+function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function num(x){return (x==null||isNaN(Number(x)))?null:Number(x)}
+function usd(x,sign){var n=num(x); if(n===null)return '—'; return (n<0?'-':(sign?'+':''))+'$'+Math.abs(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pct(x,sign,d){var n=num(x); if(n===null)return '—'; n*=100; return (n<0?'':(sign?'+':''))+n.toFixed(d==null?1:d)+'%'}
+function cls(x){var n=num(x); return n===null||n===0?'':(n>0?'up':'dn')}
+function when(ts){ if(!ts)return '—'; try{return new Date(ts*1000).toLocaleString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' CDMX'}catch(e){return '—'} }
+function whenS(ts){ if(!ts)return '—'; try{return new Date(ts*1000).toLocaleString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '—'} }
+function dur(a,b){ var s=Math.max(0,Math.round(b-a)); return s<3600?Math.round(s/60)+' min':Math.floor(s/3600)+' h '+Math.round((s%3600)/60)+' min' }
+function ago(ts){ var s=Math.max(0,Math.floor(Date.now()/1000-ts)); if(s<60)return s+' s'; if(s<3600)return Math.floor(s/60)+' min'; return Math.floor(s/3600)+' h '+Math.floor((s%3600)/60)+' min' }
+var WHY={'take profit':'Take profit (+25%)','stop':'Stop (−6%)','tiempo':'Tiempo (60 min)','liquidez retirada':'Rug: liquidez retirada','sin datos 10 min':'Sin datos 10 min'};
+async function getJSON(url){var r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error('HTTP '+r.status); return r.json()}
+var S=null;
+async function load(){
+  try{
+    var s;
+    try{ s=await getJSON('https://gist.githubusercontent.com/'+O+'/'+G+'/raw/'+F+'?t='+Date.now()) }
+    catch(e){ var g=await getJSON('https://api.github.com/gists/'+G); s=JSON.parse(g.files[F].content) }
+    S=s; render();
+  }catch(e){ $('upd').textContent='sin datos'; $('upd').className='err'; $('dot').style.background='var(--red)'; console.error(e) }
+}
+function bars(el,rows,c,empty){
+  if(!rows.length){el.innerHTML='<div class="empty">'+empty+'</div>';return}
+  var mx=Math.max.apply(null,rows.map(function(r){return r[1]}));
+  el.innerHTML=rows.map(function(r){var w=mx>0?Math.max(2,Math.round(100*r[1]/mx)):0;
+    return '<div class="frow '+(c||'')+'"><span>'+esc(r[0])+'</span><span class="bar"><i style="width:'+w+'%"></i></span><b>'+r[1]+'</b></div>'}).join('')
+}
+function render(){
+  var s=S; if(!s)return;
+  var age=Math.floor(Date.now()/1000-(s.updated||0));
+  $('upd').textContent=when(s.updated)+' · hace '+ago(s.updated); $('upd').className=age>300?'err':'mut';
+  $('dot').style.background=age>300?'var(--red)':'';
+  var eq=num(s.equity), tp=num(s.total_pnl);
+  $('hero').className='panel hero '+(tp===null||tp===0?'neutral':(tp>0?'pos':'neg'));
+  $('eq').textContent=usd(eq);
+  $('pnlTot').textContent=(tp===null?'—':usd(tp,1)+' ('+pct(s.total_ret,1,2)+')')+' vs $100 de inicio';
+  $('ops').textContent=(s.n_closed||0)+' cerradas · '+(s.n_open||0)+' abiertas';
+  $('cash').textContent=usd(s.cash); $('ov').textContent=usd(s.open_value);
+  $('nopen').textContent=s.n_open==null?'—':s.n_open; $('nclosed').textContent=s.n_closed==null?'—':s.n_closed;
+  $('wr').textContent=s.win_rate==null?'—':pct(s.win_rate,0,0)+' ('+s.wins+'/'+s.n_closed+')';
+  var r=$('rpnl'); r.textContent=usd(s.realized_pnl,1); r.className=cls(s.realized_pnl);
+  $('dd').textContent=s.n_closed?usd(s.max_drawdown):'—'; var a=$('avg'); a.textContent=s.avg_pnl==null?'—':usd(s.avg_pnl,1); a.className=cls(s.avg_pnl);
+  $('seen').textContent=s.n_seen==null?'—':s.n_seen;
+  // abiertas
+  var op=s.open||[];
+  if(!op.length) $('open').innerHTML='<div class="empty">No hay posiciones abiertas ahorita. El bot espera un token que pase el filtro.</div>';
+  else $('open').innerHTML='<div class="tw"><table class="tbl"><thead><tr><th>Token</th><th>Entrada (CDMX)</th><th class="n">Valor</th><th class="n">Retorno</th></tr></thead><tbody>'+op.map(function(p){
+    var st=num(p.px_age_s)!==null&&p.px_age_s>180?' <span class="stale" title="último precio hace '+Math.round(p.px_age_s)+' s">⚠ precio viejo</span>':'';
+    return '<tr><td><a href="https://dexscreener.com/solana/'+encodeURIComponent(p.addr)+'" target="_blank" rel="noopener">'+esc(p.sym)+' ↗</a>'+st+'<div class="mut small">score '+esc(p.score==null?'—':p.score)+' · liq '+(num(p.liq)===null?'—':'$'+Math.round(p.liq).toLocaleString('es-MX'))+'</div></td><td>'+whenS(p.t)+'<div class="mut small">hace '+ago(p.t)+'</div></td><td class="n">'+usd(p.value)+'<div class="mut small">de $20</div></td><td class="n '+cls(p.ret)+'"><b>'+pct(p.ret,1,1)+'</b><div class="small">'+usd(p.pnl,1)+'</div></td></tr>'}).join('')+'</tbody></table></div>';
+  // cerradas
+  var cl=s.closed||[];
+  if(!cl.length) $('closed').innerHTML='<div class="empty">Todavía no hay operaciones cerradas.</div>';
+  else $('closed').innerHTML=cl.map(function(c){var g=(c.pnl||0)>0;
+    return '<div class="it"><div class="r1"><b>'+esc(c.sym)+'<span class="pill '+(g?'g':'r')+'">'+esc(WHY[c.why]||c.why)+'</span></b><b class="'+cls(c.pnl)+'">'+pct(c.ret,1,1)+' · '+usd(c.pnl,1)+'</b></div><div class="r2">'+whenS(c.t)+' → '+whenS(c.t2)+' CDMX · duró '+dur(c.t,c.t2)+' · score '+esc(c.score==null?'—':c.score)+'</div></div>'}).join('');
+  if(s.closed_total>cl.length) $('closed').innerHTML+='<div class="empty">Mostrando las últimas '+cl.length+' de '+s.closed_total+'.</div>';
+  // salidas / descartes
+  var ex=Object.keys(s.exit_reasons||{}).map(function(k){return [WHY[k]||k,s.exit_reasons[k]]}).sort(function(a,b){return b[1]-a[1]});
+  bars($('exits'),ex,'',"Aún no hay salidas.");
+  bars($('disc'),(s.top_discards||[]).map(function(d){return [d.reason,d.n]}),'k',"Aún no hay descartes registrados.");
+}
+load(); setInterval(load,30000);
+document.addEventListener('visibilitychange',function(){ if(!document.hidden)load() });
+setInterval(function(){ if(S) render() },10000);
+})();
+</script></body></html>
