@@ -63,7 +63,7 @@
  <section class="panel"><h3>Por qué se descartan tokens</h3><div class="funnel" id="disc"><div class="empty">cargando…</div></div>
   <p class="mut small" style="margin:10px 0 0">Conteo acumulado de tokens que el filtro rechazó y la primera razón que los tumbó.</p></section>
 </main>
-<footer><p>Fuente: gist <code>pulse_memes.json</code> · refresco cada 30 s (el bot publica cada ~60 s) · horas en America/Mexico_City.</p><div class="credit">PULSE · solo papel</div></footer>
+<footer><p>Fuente: gist <code>pulse_memes.json</code> · refresco cada 30 s (el bot publica cada ~2 min; GitHub limita las escrituras al gist) · horas en America/Mexico_City.</p><div class="credit">PULSE · solo papel</div></footer>
 <script>
 (function(){
 'use strict';
@@ -98,8 +98,8 @@ function bars(el,rows,c,empty){
 function render(){
   var s=S; if(!s)return;
   var age=Math.floor(Date.now()/1000-(s.updated||0));
-  $('upd').textContent=when(s.updated)+' · hace '+ago(s.updated); $('upd').className=age>300?'err':'mut';
-  $('dot').style.background=age>300?'var(--red)':'';
+  $('upd').textContent=when(s.updated)+' · hace '+ago(s.updated); $('upd').className=age>600?'err':'mut';
+  $('dot').style.background=age>600?'var(--red)':'';
   var eq=num(s.equity), tp=num(s.total_pnl);
   $('hero').className='panel hero '+(tp===null||tp===0?'neutral':(tp>0?'pos':'neg'));
   $('eq').textContent=usd(eq);
